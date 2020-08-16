@@ -17,4 +17,4 @@
 - Reference URL : https://www.evernote.com/l/Af-UtkfsmM9PGYDAeA8404b0QnoDfrmMbpA/
  
 #2[2020-08-17] : create Event Entity
-- Reference URL : 
+- Reference URL : https://www.evernote.com/l/Af9a94ITWS9ORprm2-dJ0FEy3MBWCsD8yf4/
