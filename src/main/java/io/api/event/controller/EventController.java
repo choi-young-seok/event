@@ -1,11 +1,11 @@
 package io.api.event.controller;
 
-import io.api.event.entity.event.Event;
+import io.api.event.domain.dto.event.EventDto;
+import io.api.event.domain.entity.event.Event;
 import io.api.event.repository.EventRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,14 +48,35 @@ public class EventController {
 
     /* 생성자를 이용한 Bean 주입 -> @Autowired annotaion을 이용하여 Bean을 주입하거나 생성자를 이용하여 bean을 주입*/
     private final EventRepository eventRepository;
-    public EventController(EventRepository eventRepository){
-        this.eventRepository = eventRepository;
-    }
+//    public EventController(EventRepository eventRepository){
+//        this.eventRepository = eventRepository;
+//    }
 
     @PostMapping(value = "/event03")
     ResponseEntity createEvent03(@RequestBody Event event){
+        log.info("event03 start");
         Event createdEvent = this.eventRepository.save(event);
         URI createdUri = linkTo(methodOn(EventController.class).createEvent03(event)).slash(createdEvent.getId()).toUri();
         return ResponseEntity.created(createdUri).body(event);
+    }
+
+    private final ModelMapper modelMapper;
+
+    public EventController(EventRepository eventRepository, ModelMapper modelMapper){
+        this.eventRepository = eventRepository;
+        this.modelMapper = modelMapper;
+    }
+
+    /* ModelMapper를 이용한 javaBean mapping */
+    @PostMapping(value = "/event04")
+    ResponseEntity createEvent04(@RequestBody EventDto eventDto){
+        log.info("event04 start");
+        //EventDto객체를 이용하여 입력 파라미터를 수신 후 Event객체의 setter를이용하여 값을 옮기는 방법을 대체 할 modelMapper
+        Event event = modelMapper.map(eventDto, Event.class);
+        log.info(event.toString());
+        Event createdEvent = eventRepository.save(event);
+        log.info(createdEvent.toString());
+        URI createdUri = linkTo(methodOn(EventController.class).createEvent04(eventDto)).slash(createdEvent.getId()).toUri();
+        return ResponseEntity.created(createdUri).body(createdEvent);
     }
 }
