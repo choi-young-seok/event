@@ -2,6 +2,7 @@ package io.api.event.entity.event;
 
 import lombok.*;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Builder
@@ -10,9 +11,21 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")
+@Entity
+
+
 public class Event {
 
+    //SpringBoot 2.1 부터는 JPA 3.2를 지원
+    // - JPA 3.2는 LocalDateTime Mapping 가능
+    //Enum class는 @Enumerated annotaion으로 mapping
+    // - @Enumerated의 EnumType은 default ORDINARY로 Enum에 선언된 값의 순서에 따라 0, 1, 2의 값이 순차적으로 설정되는데,
+    // Enum에 선언된 값의 순서가 변경 될 경우, 설정된 값이 일치 하지 않으므로,
+    // 순서 변경과 상관없이 값을 보장 할수 있도록 EnumType.String으로 설정한다.
+    @Id
+    @GeneratedValue
     private Integer id;
+
     private String name;
     private String description;
     private LocalDateTime beginEnrollmentDateTime;
@@ -25,5 +38,7 @@ public class Event {
     private int limitOfEnrollment;
     private boolean offline;
     private boolean free;
+
+    @Enumerated(EnumType.STRING)
     private EventStatus eventStatus;
 }
