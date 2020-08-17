@@ -1,4 +1,4 @@
-package io.api.event.entity.event;
+package io.api.event.domain.entity.event;
 
 import org.junit.jupiter.api.Test;
 

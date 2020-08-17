@@ -1,4 +1,4 @@
-package io.api.event.entity.event;
+package io.api.event.domain.entity.event;
 
 import lombok.*;
 
@@ -11,9 +11,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")
+@ToString
 @Entity
-
-
 public class Event {
 
     //SpringBoot 2.1 부터는 JPA 3.2를 지원
@@ -39,6 +38,7 @@ public class Event {
     private boolean offline;
     private boolean free;
 
+    //default value로 DRAFT를 지정
     @Enumerated(EnumType.STRING)
-    private EventStatus eventStatus;
+    private EventStatus eventStatus = EventStatus.DRAFT;
 }
