@@ -13,13 +13,13 @@
     - postgreSql
   - jUnit 5
 
-#1[2020-08-17] : Create Project by IntelliJ
+Commit#1[2020-08-17] : Create Project by IntelliJ
 - Reference URL : https://www.evernote.com/l/Af-UtkfsmM9PGYDAeA8404b0QnoDfrmMbpA/
  
-#2[2020-08-17] : Create Event Entity
+Commit#2[2020-08-17] : Create Event Entity
 - Reference URL : https://www.evernote.com/l/Af9a94ITWS9ORprm2-dJ0FEy3MBWCsD8yf4/
 
-#3[2020-08-17] : Create Event API_01
+Commit#3[2020-08-17] : Create Event API_01
 - Reference URL :
   - Create EvnetController : https://www.evernote.com/l/Af9T4l-eKvJPHaWjhagAxJIchZNmTDmfziQ/
   - Create EventRepository : https://www.evernote.com/l/Af_D0fEG-KhLf6A6YZJr0PeDggCQSlZLZ14/
