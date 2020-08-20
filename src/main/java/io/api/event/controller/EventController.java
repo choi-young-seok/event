@@ -8,11 +8,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.net.URI;
 
 import static org.springframework.hateoas.server.mvc.ControllerLinkBuilder.linkTo;
@@ -54,7 +56,6 @@ public class EventController {
 
     @PostMapping(value = "/event03")
     ResponseEntity createEvent03(@RequestBody Event event){
-        log.info("event03 start");
         Event createdEvent = this.eventRepository.save(event);
         URI createdUri = linkTo(methodOn(EventController.class).createEvent03(event)).slash(createdEvent.getId()).toUri();
         return ResponseEntity.created(createdUri).body(event);
@@ -70,12 +71,31 @@ public class EventController {
     /* ModelMapper를 이용한 javaBean mapping */
     @PostMapping(value = "/event04")
     ResponseEntity createEvent04(@RequestBody EventDto eventDto){
-        log.info("event04 start");
         //EventDto객체를 이용하여 입력 파라미터를 수신 후 Event객체의 setter를이용하여 값을 옮기는 방법을 대체 할 modelMapper
         Event event = modelMapper.map(eventDto, Event.class);
         log.info(event.toString());
         Event createdEvent = eventRepository.save(event);
         log.info(createdEvent.toString());
+        URI createdUri = linkTo(methodOn(EventController.class).createEvent04(eventDto)).slash(createdEvent.getId()).toUri();
+        return ResponseEntity.created(createdUri).body(createdEvent);
+    }
+
+    /* JSR303을 이용한 요청 파라미터의 기본 유효성 검사
+    * @Valid 다음에 유효성검사를 진행할 객체를 위치 시키고, 그다음 객체에 Erros객체를 위치 시켜,
+    * 유효성검사에 대한 에러 값을 담는다.
+    * */
+    @PostMapping(value = "/event05")
+    ResponseEntity createEvent05(@RequestBody @Valid EventDto eventDto, Errors errors){
+        // @Valid를 통해 특정 객체의 유효성 검사를 진행하면서 error가 발생한 경우 errors객체에 error가 담긴다.
+        if(errors.hasErrors()){
+            log.info("badreqeust");
+            // error가 있는 경우 badReqeust 처리
+            return ResponseEntity.badRequest().build();
+        }
+        log.info("not badreqeust : " + errors.toString());
+        //EventDto객체를 이용하여 입력 파라미터를 수신 후 Event객체의 setter를이용하여 값을 옮기는 방법을 대체 할 modelMapper
+        Event event = modelMapper.map(eventDto, Event.class);
+        Event createdEvent = eventRepository.save(event);
         URI createdUri = linkTo(methodOn(EventController.class).createEvent04(eventDto)).slash(createdEvent.getId()).toUri();
         return ResponseEntity.created(createdUri).body(createdEvent);
     }

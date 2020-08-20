@@ -1,6 +1,7 @@
 package io.api.event.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.api.event.domain.dto.event.EventDto;
 import io.api.event.domain.entity.event.Event;
 import io.api.event.domain.entity.event.EventStatus;
 import io.api.event.repository.EventRepository;
@@ -145,7 +146,7 @@ class EventControllerTest {
     }
 
     /** 입력값을 통해 계산 혹은 결정되어야 되는 항목의 입력값 제한
-     * 구현 : EventDto를 이용하여 입력에 필요한 값만 수신 후 EventEntity와 객체 Mapping
+     * 구현#1: EventDto를 이용하여 입력에 필요한 값만 수신 후 EventEntity와 객체 Mapping
      * 객체 Mappping 구현 방법
      *  - #1 : ModelMapper를 이용한 객체 Mapping (java Reflection기반 이므로 성능에 영향을 줄 수 있다.)
      *  - #2 : Reflection기반이 아닌 javaBean의 getter/setter를 이용한 값 mapping
@@ -156,6 +157,7 @@ class EventControllerTest {
      *      - Event.id -> DB를 통해 생성된 값
      *      - Event.free -> Event.basePrice 항목에 따라 free 여부를 결정
      *      - Event.offline -> Event.location 항목에 따라 offline 여부를 결정
+     *  구현#2 : SpringBoot에서 제공하는 jackson.deserialization.fail-on-unknown-properties=true 속성을 이용한 java bean binding대상에 미포함 항목 체크 및 BaeRequest 처리
      * */
     @Test
     public void createEvent_TEST_04() throws Exception {
@@ -201,7 +203,23 @@ class EventControllerTest {
                 .andExpect(jsonPath("free").value(Matchers.not(true)))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
         ;
+    }
 
+    /** #입력받는 항목의 기본 유효성 검사
+     * 구현 : @Valid와 BindingResult (또는 Errors)를 통한 기본 유효성 검사 진행 및 유효하지 못할 시 BadReqeust 처리
+     *  - 유의사항 : @Valid annotation을 이용하여 유효성검사를 진행할 경우, 대상 Binding 객체는 항상 @Valid 바로 다음 인자로 사용해야한다.(Spring MVC rule)
+     * */
+    @Test
+    public void createEventAPI_Input_Value_Validation_TEST() throws Exception {
+        EventDto eventDto = EventDto.builder().build();
+
+        mockMvc.perform(post("/api/event05")
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .accept(MediaTypes.HAL_JSON_VALUE)
+                    .characterEncoding(StandardCharsets.UTF_8.name())
+                    .content(objectMapper.writeValueAsString(eventDto))
+                )
+                .andExpect(status().isBadRequest());
     }
 
 }
