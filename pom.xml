@@ -35,7 +35,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>test</scope>
+<!--            <scope>test</scope>-->
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -71,6 +71,15 @@
             <groupId>org.modelmapper</groupId>
             <artifactId>modelmapper</artifactId>
             <version>2.3.8</version>
+        </dependency>
+        <!--
+            - Maven Central URL : https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api
+            [용석:2020-08-20] : Java Bean객체의 기본 유효성 검사를 위한 jakarta.validation dependency 추가
+        -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>2.0.2</version>
         </dependency>
 
     </dependencies>
