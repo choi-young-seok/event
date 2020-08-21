@@ -88,11 +88,9 @@ public class EventController {
     ResponseEntity createEvent05(@RequestBody @Valid EventDto eventDto, Errors errors){
         // @Valid를 통해 특정 객체의 유효성 검사를 진행하면서 error가 발생한 경우 errors객체에 error가 담긴다.
         if(errors.hasErrors()){
-            log.info("badreqeust");
             // error가 있는 경우 badReqeust 처리
             return ResponseEntity.badRequest().build();
         }
-        log.info("not badreqeust : " + errors.toString());
         //EventDto객체를 이용하여 입력 파라미터를 수신 후 Event객체의 setter를이용하여 값을 옮기는 방법을 대체 할 modelMapper
         Event event = modelMapper.map(eventDto, Event.class);
         Event createdEvent = eventRepository.save(event);

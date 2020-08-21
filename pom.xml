@@ -72,14 +72,25 @@
             <artifactId>modelmapper</artifactId>
             <version>2.3.8</version>
         </dependency>
+
         <!--
             - Maven Central URL : https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api
-            [용석:2020-08-20] : Java Bean객체의 기본 유효성 검사를 위한 jakarta.validation dependency 추가
+            - [용석:2020-08-20] : Java Bean객체의 기본 유효성 검사를 위한 jakarta.validation dependency 추가
+        -->
+<!--        <dependency>-->
+<!--            <groupId>jakarta.validation</groupId>-->
+<!--            <artifactId>jakarta.validation-api</artifactId>-->
+<!--            <version>2.0.2</version>-->
+<!--        </dependency>-->
+
+        <!--
+            - Maven Central URL : https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api
+            - [용석:2020-08-21] : Java Bean객체의 기본 유효성 검사를 위한 spring-boot-starter-validation 추가
+            - 참고 URL : https://meetup.toast.com/posts/223
         -->
         <dependency>
-            <groupId>jakarta.validation</groupId>
-            <artifactId>jakarta.validation-api</artifactId>
-            <version>2.0.2</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
     </dependencies>
