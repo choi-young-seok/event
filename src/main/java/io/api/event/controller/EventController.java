@@ -3,6 +3,7 @@ package io.api.event.controller;
 import io.api.event.domain.dto.event.EventDto;
 import io.api.event.domain.entity.event.Event;
 import io.api.event.repository.EventRepository;
+import io.api.event.util.event.EventValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.MediaTypes;
@@ -63,10 +64,10 @@ public class EventController {
 
     private final ModelMapper modelMapper;
 
-    public EventController(EventRepository eventRepository, ModelMapper modelMapper){
-        this.eventRepository = eventRepository;
-        this.modelMapper = modelMapper;
-    }
+//    public EventController(EventRepository eventRepository, ModelMapper modelMapper){
+//        this.eventRepository = eventRepository;
+//        this.modelMapper = modelMapper;
+//    }
 
     /* ModelMapper를 이용한 javaBean mapping */
     @PostMapping(value = "/event04")
@@ -86,11 +87,40 @@ public class EventController {
     * */
     @PostMapping(value = "/event05")
     ResponseEntity createEvent05(@RequestBody @Valid EventDto eventDto, Errors errors){
-        // @Valid를 통해 특정 객체의 유효성 검사를 진행하면서 error가 발생한 경우 errors객체에 error가 담긴다.
+        // @Valid를 통해 특정 객체에 값 Binding시 유효성 검사를 진행 하면서 error가 발생한 경우 errors객체에 error가 담긴다.
         if(errors.hasErrors()){
             // error가 있는 경우 badReqeust 처리
             return ResponseEntity.badRequest().build();
         }
+        //EventDto객체를 이용하여 입력 파라미터를 수신 후 Event객체의 setter를이용하여 값을 옮기는 방법을 대체 할 modelMapper
+        Event event = modelMapper.map(eventDto, Event.class);
+        Event createdEvent = eventRepository.save(event);
+        URI createdUri = linkTo(methodOn(EventController.class).createEvent04(eventDto)).slash(createdEvent.getId()).toUri();
+        return ResponseEntity.created(createdUri).body(createdEvent);
+    }
+
+    private final EventValidator eventValidator;
+
+    public EventController(EventRepository eventRepository, ModelMapper modelMapper, EventValidator eventValidator){
+        this.eventRepository = eventRepository;
+        this.modelMapper = modelMapper;
+        this.eventValidator = eventValidator;
+    }
+
+    @PostMapping(value = "/event06")
+    ResponseEntity createEvent06(@RequestBody @Valid EventDto eventDto, Errors errors){
+        // @Valid를 통해 특정 객체에 값 Binding시 유효성 검사를 진행 하면서 error가 발생한 경우 errors객체에 error가 담긴다.
+        if(errors.hasErrors()){
+            // error가 있는 경우 badReqeust 처리
+            return ResponseEntity.badRequest().build();
+        }
+
+        eventValidator.validate(eventDto, errors);
+
+        if(errors.hasErrors()){
+            return ResponseEntity.badRequest().build();
+        }
+
         //EventDto객체를 이용하여 입력 파라미터를 수신 후 Event객체의 setter를이용하여 값을 옮기는 방법을 대체 할 modelMapper
         Event event = modelMapper.map(eventDto, Event.class);
         Event createdEvent = eventRepository.save(event);
