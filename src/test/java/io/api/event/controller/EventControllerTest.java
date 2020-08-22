@@ -6,6 +6,7 @@ import io.api.event.domain.dto.event.EventDto;
 import io.api.event.domain.entity.event.Event;
 import io.api.event.domain.entity.event.EventStatus;
 import io.api.event.repository.EventRepository;
+import io.api.event.util.common.TestDescription;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
@@ -54,6 +55,7 @@ class EventControllerTest {
      *  - Location header에 생성된 이벤트를 조회할 수 있는 URL 응답 확인
      * */
     @Test
+    @TestDescription("EventController 통신 여부 및 응답 코드 확인")
     public void createEvent_TEST_01() throws Exception {
         mockMvc.perform(post("/api/event/")
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -71,6 +73,7 @@ class EventControllerTest {
      *  - RequestBody에 생성 요청 객체를 포함한 요청의 응답 내 id항목이 DB적재 후 auto increment된 값 인지 확인
      * */
     @Test
+    @TestDescription("EventController 응답 항목 확인")
     public void createEvent_TEST_02() throws Exception {
         Event event = Event.builder()
                 .name("루나소프트 생활 체육회")
@@ -114,6 +117,7 @@ class EventControllerTest {
      *  - RequestBody에 생성 요청 객체를 포함한 요청의 응답 내 id항목이 DB적재 후 auto increment된 값 인지 확인
      * */
     @Test
+    @TestDescription("@MockBean을 이용한 Repository를 통해 실제 생성된 id값 반환 여부 확인")
     public void createEvent_TEST_03() throws Exception {
         Event event = Event.builder()
                 .name("루나소프트 생활 체육회")
@@ -161,6 +165,7 @@ class EventControllerTest {
      *  구현#2 : SpringBoot에서 제공하는 jackson.deserialization.fail-on-unknown-properties=true 속성을 이용한 java bean binding대상에 미포함 항목 체크 및 BaeRequest 처리
      * */
     @Test
+    @TestDescription("입력값을 통해 결정되는 파라미터 요청 시 Bad Reqeust 응답 여부 확인")
     public void createEvent_TEST_04() throws Exception {
         Event event = Event.builder()
                 .id(100) //입력되면 안되는 값을 요청 파라미터에 설정하여 제한여부를 Test한다.
@@ -211,6 +216,7 @@ class EventControllerTest {
      *  - 유의사항 : @Valid annotation을 이용하여 유효성검사를 진행할 경우, 대상 Binding 객체는 항상 @Valid 바로 다음 인자로 사용해야한다.(Spring MVC rule)
      * */
     @Test
+    @TestDescription("JSR 303 Annotations을 적용 하여, 입력 파라미터를 객체 Binding시 기본 유효성 검사 및 에러 발생 시 Bad Request 응답 여부 확인")
     public void createEventAPI_Input_Value_Validation_TEST() throws Exception {
         EventDto eventDto = EventDto.builder().build();
 
@@ -224,6 +230,7 @@ class EventControllerTest {
     }
 
     @Test
+    @TestDescription("Custom Validtator를 이용하여, 입력 값이 서비스 처리에 올바른 값인지 검증")
     public void createEventAPI_Bad_Request_Wrong_Input() throws Exception {
         Event event = Event.builder()
                 .name("루나소프트 생활 체육회")
