@@ -1,5 +1,6 @@
 package io.api.event.domain.entity.event;
 
+import io.api.event.util.common.TestDescription;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,5 +63,60 @@ class EventTest {
 
         assertThat(event.getName()).isEqualTo(name);
         assertThat(event.getDescription()).isEqualTo(description);
+    }
+
+    @Test
+    @TestDescription("Event.basePrice/Event.maxPrice 필드 입력 값에 따른 Event.free true/false 설정 유무 확인")
+    public void eventEntity_set_Business_logic_value_to_free(){
+        // Given
+        Event event = Event.builder()
+                .basePrice(0)
+                .maxPrice(0)
+                .build();
+
+        // When
+        event.update();
+
+        // Then
+        assertThat(event.isFree()).isTrue();
+
+        // Given
+        event = Event.builder()
+                .basePrice(100)
+                .maxPrice(0)
+                .build();
+
+        // When
+        event.update();
+
+        // Then
+        assertThat(event.isFree()).isFalse();
+
+        // Given
+        event = Event.builder()
+                .basePrice(0)
+                .maxPrice(100)
+                .build();
+
+        // When
+        event.update();
+
+        // Then
+        assertThat(event.isFree()).isFalse();
+    }
+
+    @Test
+    @TestDescription("Event.location항목 입력값에 따른 Event.offline true/false 설정 유무 확인")
+    public void eventEntity_set_eventEntity_offline_value_by_input_location_value(){
+        // Given
+        Event event = Event.builder()
+                .location("서울시 강남구 일원동 마루공원 풋살장 1면")
+                .build();
+
+        // When
+        event.update();
+
+        // Then
+        assertThat(event.isOffline()).isTrue();
     }
 }

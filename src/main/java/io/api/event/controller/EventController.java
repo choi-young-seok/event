@@ -133,4 +133,27 @@ public class EventController {
         URI createdUri = linkTo(methodOn(EventController.class).createEvent04(eventDto)).slash(createdEvent.getId()).toUri();
         return ResponseEntity.created(createdUri).body(createdEvent);
     }
+
+
+    @PostMapping(value = "/event07")
+    ResponseEntity createEvent07(@RequestBody @Valid EventDto eventDto, Errors errors){
+        // @Valid를 통해 특정 객체에 값 Binding시 유효성 검사를 진행 하면서 error가 발생한 경우 errors객체에 error가 담긴다.
+        if(errors.hasErrors()){
+            // error가 있는 경우 badReqeust 처리
+            return ResponseEntity.badRequest().body(errors);
+        }
+
+        eventValidator.validate(eventDto, errors);
+
+        if(errors.hasErrors()){
+            return ResponseEntity.badRequest().body(errors);
+        }
+
+        //EventDto객체를 이용하여 입력 파라미터를 수신 후 Event객체의 setter를이용하여 값을 옮기는 방법을 대체 할 modelMapper
+        Event event = modelMapper.map(eventDto, Event.class);
+        event.update();
+        Event createdEvent = eventRepository.save(event);
+        URI createdUri = linkTo(methodOn(EventController.class).createEvent04(eventDto)).slash(createdEvent.getId()).toUri();
+        return ResponseEntity.created(createdUri).body(createdEvent);
+    }
 }
