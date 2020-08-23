@@ -253,6 +253,42 @@ class EventControllerTest {
         )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].objectName").exists())
+                .andExpect(jsonPath("$[0].field").exists())
+                .andExpect(jsonPath("$[0].defaultMessage").exists())
+                .andExpect(jsonPath("$[0].code").exists())
+                .andExpect(jsonPath("$[0].rejectedValue").exists())
+        ;
+    } 
+    @Test
+    @TestDescription("입력값이 유효하지 못한 요청의 Bad Request처리 시 Body 유무 확인")
+    public void createEventAPI_Add_Bad_Request_Body_When_Wrong_Input() throws Exception {
+        Event event = Event.builder()
+                .name("루나소프트 생활 체육회")
+                .description("제 2회 루나 배 풋살 대회")
+                .beginEnrollmentDateTime(LocalDateTime.of(2020, 8, 06, 9, 30 ))
+                .closeEnrollmentDateTime(LocalDateTime.of(2020, 8, 07, 9, 30 ))
+                .beginEventDateTime(LocalDateTime.of(2020, 8, 6, 19, 00))
+                .endEventDateTime(LocalDateTime.of(2020, 8, 13, 22, 00))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(0)
+                .location("서울시 강남구 일원동 마루공원 풋살장 1면")
+                .build();
+
+        mockMvc.perform(post("/api/event06")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaTypes.HAL_JSON)
+                .characterEncoding(StandardCharsets.UTF_8.name())
+                .content(objectMapper.writeValueAsString(event))
+        )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].objectName").exists())
+//                .andExpect(jsonPath("$[0].field").exists())
+                .andExpect(jsonPath("$[0].defaultMessage").exists())
+                .andExpect(jsonPath("$[0].code").exists())
+//                .andExpect(jsonPath("$[0].rejectedValue").exists())
         ;
     }
 

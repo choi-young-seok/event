@@ -107,18 +107,24 @@ public class EventController {
         this.eventValidator = eventValidator;
     }
 
+    /** EventValidator를 이용하여 catch한 errors에 담긴 항목을 bdoy에 담아서 리턴할 수 없는 이유
+     * Errors 객체는 javaBean spec을 만족하지 못한 객체 이므로, BeanSerializer 오류 발생
+     * 해당 Controller가 hal-json타입을 리턴하므로 errors 객체를 반환할 경우 BeanSerializer가 객체->json으로 변환을
+     * 시도 하지만 Errors객체가 JavaBean Spec을 만족하지 못하므로 jackson.databind.InvalidDefinitionException 발생
+     * 결론 : Errors객체 내 담긴 오류 내용을 Bad Reqeust의 body로 반환하기 위해서
+     * */
     @PostMapping(value = "/event06")
     ResponseEntity createEvent06(@RequestBody @Valid EventDto eventDto, Errors errors){
         // @Valid를 통해 특정 객체에 값 Binding시 유효성 검사를 진행 하면서 error가 발생한 경우 errors객체에 error가 담긴다.
         if(errors.hasErrors()){
             // error가 있는 경우 badReqeust 처리
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(errors);
         }
 
         eventValidator.validate(eventDto, errors);
 
         if(errors.hasErrors()){
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(errors);
         }
 
         //EventDto객체를 이용하여 입력 파라미터를 수신 후 Event객체의 setter를이용하여 값을 옮기는 방법을 대체 할 modelMapper
