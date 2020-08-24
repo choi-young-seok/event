@@ -2,6 +2,11 @@ package io.api.event.domain.entity.event;
 
 import io.api.event.util.common.TestDescription;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -105,6 +110,32 @@ class EventTest {
         assertThat(event.isFree()).isFalse();
     }
 
+//    @Test
+    @TestDescription("jUnit5 ParameterizedTest를 이용한 Event.basePrice/Event.maxPrice 필드 입력 값에 따른 Event.free true/false 설정 유무 확인")
+    @ParameterizedTest
+    @MethodSource("isFree")
+    public void freeTest(int basePrice, int maxPrice, boolean isFree){
+        // Given
+        Event event = Event.builder()
+                .basePrice(basePrice)
+                .maxPrice(maxPrice)
+                .build();
+        // When
+        event.update();
+
+        // Then
+        assertThat(event.isFree()).isEqualTo(isFree);
+    }
+
+    private static Stream<Arguments> isFree(){
+        return Stream.of(
+                Arguments.of(0, 0, true),
+                Arguments.of(100, 0, false),
+                Arguments.of(0, 100, false),
+                Arguments.of(100, 200, false)
+        );
+    }
+
     @Test
     @TestDescription("Event.location항목 입력값에 따른 Event.offline true/false 설정 유무 확인")
     public void eventEntity_set_eventEntity_offline_value_by_input_location_value(){
@@ -118,5 +149,51 @@ class EventTest {
 
         // Then
         assertThat(event.isOffline()).isTrue();
+
+        // Given
+        event = Event.builder()
+                .location("  ")
+                .build();
+
+        // When
+        event.update();
+
+        // Then
+        assertThat(event.isOffline()).isFalse();
+
+        // Given
+        event = Event.builder()
+                .location("  ")
+                .build();
+
+        // When
+        event.update();
+
+        // Then
+        assertThat(event.isOffline()).isFalse();
+
+    }
+
+    @ParameterizedTest
+    @MethodSource("setOfflineTestParameters")
+    public void set_OfflineByLocationValue_Test(String location, boolean isOffline){
+        // Given
+        Event event = Event.builder()
+                .location(location)
+                .build();
+
+        // When
+        event.update();
+
+        // Then
+        assertThat(event.isOffline()).isEqualTo(isOffline);
+    }
+
+    private static Stream<Arguments> setOfflineTestParameters(){
+        return Stream.of(
+            Arguments.of("강남구 어딘가", true),
+            Arguments.of(null, false),
+            Arguments.of("   ", false)
+        );
     }
 }
