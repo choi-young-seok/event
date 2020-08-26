@@ -324,4 +324,76 @@ class EventControllerTest {
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
         ;
     }
+
+    @Test
+    @TestDescription("이벤트 생성 API 호출 후 성공 응답에 HATEOAS의 RepresentationModel을 이용한 profile관련 링크 유무 확인")
+    public void createEventAPI_Check_API_link_info_by_HATEOAS_RepresentationModel() throws Exception {
+        Event event = Event.builder()
+                .name("루나소프트 생활 체육회")
+                .description("제 2회 루나 배 풋살 대회")
+                .beginEnrollmentDateTime(LocalDateTime.of(2020, 8, 06, 9, 30 ))
+                .closeEnrollmentDateTime(LocalDateTime.of(2020, 8, 07, 9, 30 ))
+                .beginEventDateTime(LocalDateTime.of(2020, 8, 13, 19, 00))
+                .endEventDateTime(LocalDateTime.of(2020, 8, 13, 22, 00))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(0)
+                .location("서울시 강남구 일원동 마루공원 풋살장 1면")
+                .build();
+
+        mockMvc.perform(post("/api/event08")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaTypes.HAL_JSON)
+                .characterEncoding(StandardCharsets.UTF_8.name())
+                .content(objectMapper.writeValueAsString(event))
+        )
+        .andDo(print())
+        .andExpect(status().isCreated())
+        .andExpect(header().exists(HttpHeaders.LOCATION))
+        .andExpect(header().exists(HttpHeaders.CONTENT_TYPE))
+        .andExpect(jsonPath("id").exists())
+        .andExpect(jsonPath("free").value(false))
+        .andExpect(jsonPath("offline").value(true))
+        .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
+        .andExpect(jsonPath("_links.self").exists())
+        .andExpect(jsonPath("_links.query-events").exists())
+        .andExpect(jsonPath("_links.update-event").exists())
+        ;
+    }
+
+    @Test
+    @TestDescription("이벤트 생성 API 호출 후 성공 응답에 HATEOAS의 EntityModel을 이용한 profile관련 링크 유무 확인")
+    public void createEventAPI_Check_API_link_info_by_HATEOAS_EntityModel() throws Exception {
+        Event event = Event.builder()
+                .name("루나소프트 생활 체육회")
+                .description("제 2회 루나 배 풋살 대회")
+                .beginEnrollmentDateTime(LocalDateTime.of(2020, 8, 06, 9, 30 ))
+                .closeEnrollmentDateTime(LocalDateTime.of(2020, 8, 07, 9, 30 ))
+                .beginEventDateTime(LocalDateTime.of(2020, 8, 13, 19, 00))
+                .endEventDateTime(LocalDateTime.of(2020, 8, 13, 22, 00))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(0)
+                .location("서울시 강남구 일원동 마루공원 풋살장 1면")
+                .build();
+
+        mockMvc.perform(post("/api/event09")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaTypes.HAL_JSON)
+                .characterEncoding(StandardCharsets.UTF_8.name())
+                .content(objectMapper.writeValueAsString(event))
+        )
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(header().exists(HttpHeaders.CONTENT_TYPE))
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("free").value(false))
+                .andExpect(jsonPath("offline").value(true))
+                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.query-events").exists())
+                .andExpect(jsonPath("_links.update-event").exists())
+        ;
+    }
 }

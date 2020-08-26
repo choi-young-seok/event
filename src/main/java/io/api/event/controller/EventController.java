@@ -1,12 +1,15 @@
 package io.api.event.controller;
 
 import io.api.event.domain.dto.event.EventDto;
+import io.api.event.domain.dto.event.EventResource;
+import io.api.event.domain.dto.event.EventResourceWithEntityModel;
 import io.api.event.domain.entity.event.Event;
 import io.api.event.repository.EventRepository;
 import io.api.event.util.event.EventValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.server.mvc.ControllerLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -156,4 +159,66 @@ public class EventController {
         URI createdUri = linkTo(methodOn(EventController.class).createEvent04(eventDto)).slash(createdEvent.getId()).toUri();
         return ResponseEntity.created(createdUri).body(createdEvent);
     }
+
+    //Spring HATEOAS의 RepresentationModel을 통한 ResponseBody에 link정보 포함하기
+    @PostMapping(value = "/event08")
+    ResponseEntity createEvent08(@RequestBody @Valid EventDto eventDto, Errors errors){
+        // @Valid를 통해 특정 객체에 값 Binding시 유효성 검사를 진행 하면서 error가 발생한 경우 errors객체에 error가 담긴다.
+        if(errors.hasErrors()){
+            // error가 있는 경우 badReqeust 처리
+            return ResponseEntity.badRequest().body(errors);
+        }
+
+        eventValidator.validate(eventDto, errors);
+
+        if(errors.hasErrors()){
+            return ResponseEntity.badRequest().body(errors);
+        }
+
+        //EventDto객체를 이용하여 입력 파라미터를 수신 후 Event객체의 setter를이용하여 값을 옮기는 방법을 대체 할 modelMapper
+        Event event = modelMapper.map(eventDto, Event.class);
+        event.update();
+        Event createdEvent = eventRepository.save(event);
+
+        ControllerLinkBuilder selfLinkBuilder = linkTo(methodOn(EventController.class).createEvent08(eventDto, errors));
+        URI createdUri = selfLinkBuilder.toUri();
+
+        EventResource eventResource = new EventResource(event);
+        eventResource.add(selfLinkBuilder.withSelfRel());
+        eventResource.add(selfLinkBuilder.slash(createdEvent.getId()).withRel("query-events"));
+        eventResource.add(selfLinkBuilder.slash(createdEvent.getId()).withRel("update-event"));
+
+        return ResponseEntity.created(createdUri).body(eventResource);
+    }
+
+    //Spring HATEOAS의 EntityModel 통한 ResponseBody에 link정보 포함하기
+    @PostMapping(value = "/event09")
+    public ResponseEntity createEvent09(@RequestBody @Valid EventDto eventDto, Errors errors){
+        // @Valid를 통해 특정 객체에 값 Binding시 유효성 검사를 진행 하면서 error가 발생한 경우 errors객체에 error가 담긴다.
+        if(errors.hasErrors()){
+            // error가 있는 경우 badReqeust 처리
+            return ResponseEntity.badRequest().body(errors);
+        }
+
+        eventValidator.validate(eventDto, errors);
+
+        if(errors.hasErrors()){
+            return ResponseEntity.badRequest().body(errors);
+        }
+
+        //EventDto객체를 이용하여 입력 파라미터를 수신 후 Event객체의 setter를이용하여 값을 옮기는 방법을 대체 할 modelMapper
+        Event event = modelMapper.map(eventDto, Event.class);
+        event.update();
+        Event createdEvent = eventRepository.save(event);
+
+        ControllerLinkBuilder selfLinkBuilder = linkTo(methodOn(EventController.class).createEvent09(eventDto, errors));
+        URI createdUri = selfLinkBuilder.toUri();
+
+        EventResourceWithEntityModel eventResourceWithEntityModel = new EventResourceWithEntityModel(event);
+        eventResourceWithEntityModel.add(selfLinkBuilder.slash(createdEvent.getId()).withRel("query-events"));
+        eventResourceWithEntityModel.add(selfLinkBuilder.slash(createdEvent.getId()).withRel("update-event"));
+
+        return ResponseEntity.created(createdUri).body(eventResourceWithEntityModel);
+    }
 }
+
