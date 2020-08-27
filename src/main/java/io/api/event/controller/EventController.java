@@ -1,5 +1,6 @@
 package io.api.event.controller;
 
+import io.api.event.config.CustomMediaTypes;
 import io.api.event.domain.dto.event.EventDto;
 import io.api.event.domain.dto.event.EventResource;
 import io.api.event.domain.dto.event.EventResourceWithEntityModel;
@@ -8,7 +9,6 @@ import io.api.event.repository.EventRepository;
 import io.api.event.util.event.EventValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.ControllerLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +24,7 @@ import java.net.URI;
 import static org.springframework.hateoas.server.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.ControllerLinkBuilder.methodOn;
 
-@RequestMapping(value = "/api", produces = MediaTypes.HAL_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api", produces = CustomMediaTypes.HAL_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 @RestController
 @Slf4j
 public class EventController {
@@ -185,7 +185,7 @@ public class EventController {
 
         EventResource eventResource = new EventResource(event);
         eventResource.add(selfLinkBuilder.withSelfRel());
-        eventResource.add(selfLinkBuilder.slash(createdEvent.getId()).withRel("query-events"));
+        eventResource.add(selfLinkBuilder.slash(createdEvent.getId()).withRel("query-event"));
         eventResource.add(selfLinkBuilder.slash(createdEvent.getId()).withRel("update-event"));
 
         return ResponseEntity.created(createdUri).body(eventResource);
@@ -215,7 +215,7 @@ public class EventController {
         URI createdUri = selfLinkBuilder.toUri();
 
         EventResourceWithEntityModel eventResourceWithEntityModel = new EventResourceWithEntityModel(event);
-        eventResourceWithEntityModel.add(selfLinkBuilder.slash(createdEvent.getId()).withRel("query-events"));
+        eventResourceWithEntityModel.add(selfLinkBuilder.slash(createdEvent.getId()).withRel("query-event"));
         eventResourceWithEntityModel.add(selfLinkBuilder.slash(createdEvent.getId()).withRel("update-event"));
 
         return ResponseEntity.created(createdUri).body(eventResourceWithEntityModel);
