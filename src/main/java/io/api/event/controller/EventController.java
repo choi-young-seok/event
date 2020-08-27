@@ -9,6 +9,7 @@ import io.api.event.repository.EventRepository;
 import io.api.event.util.event.EventValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.ControllerLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -217,6 +218,7 @@ public class EventController {
         EventResourceWithEntityModel eventResourceWithEntityModel = new EventResourceWithEntityModel(event);
         eventResourceWithEntityModel.add(selfLinkBuilder.slash(createdEvent.getId()).withRel("query-event"));
         eventResourceWithEntityModel.add(selfLinkBuilder.slash(createdEvent.getId()).withRel("update-event"));
+        eventResourceWithEntityModel.add(new Link("/docs/index.html#resources-events-create").withRel("profile"));
 
         return ResponseEntity.created(createdUri).body(eventResourceWithEntityModel);
     }
