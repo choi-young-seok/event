@@ -1,13 +1,16 @@
 package io.api.event.domain.dto.event;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import io.api.event.controller.EventController;
 import io.api.event.domain.entity.event.Event;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 
-import static org.springframework.hateoas.server.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.ControllerLinkBuilder.methodOn;
+//import static org.springframework.hateoas.server.mvc.ControllerLinkBuilder.linkTo;
+//import static org.springframework.hateoas.server.mvc.ControllerLinkBuilder.methodOn;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 
 /**
  * SpringBoot 및 HATEOAS 버전 업그레이드에 따른 클래스명 변경
@@ -21,14 +24,14 @@ import static org.springframework.hateoas.server.mvc.ControllerLinkBuilder.metho
  * */
 
 /**
- * {@link EventResource} Class의 코드량을 줄이기 위한 Refactor Class
+ * {@link EventRepresentationModel} Class의 코드량을 줄이기 위한 Refactor Class
  * {@link org.springframework.hateoas.RepresentationModel}내부에
  * @JsonUnwrapped가 이미 적용되어 구현된 EntityModel<T> Method를 이용하여 개발자가 코드로 명시하지 않고
  * 코드를 줄이면서 같은효과를 얻는다.
  * */
-public class EventResourceWithEntityModel extends EntityModel<Event> {
+public class EventEntityModel extends EntityModel<Event> {
 
-    public EventResourceWithEntityModel(Event event, Link... links) {
+    public EventEntityModel(Event event, Link... links) {
         super(event, links);
 
         /**
@@ -36,6 +39,6 @@ public class EventResourceWithEntityModel extends EntityModel<Event> {
          * Spring HATEOAS의 linkto()를 사용하여 mapping정보 변경에도 typeSafe하게 작성
          * */
 //        add(new Link("http://localhost:8080/api/event/" + event.getId()).withSelfRel();
-        add(linkTo(methodOn(EventController.class).createEvent09(null, null)).withSelfRel());
+        add(linkTo(methodOn(EventController.class)).withSelfRel());
     }
 }

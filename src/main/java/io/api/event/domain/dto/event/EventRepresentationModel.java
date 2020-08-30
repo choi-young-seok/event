@@ -22,12 +22,12 @@ import org.springframework.hateoas.RepresentationModel;
  * 이슈 : 응답내 json항목에 class명을 제외하기 위해서 @JsonUnwrapped를 사용해서 직렬화시 객체의 class명을 제외한다.
  *
  * */
-public class EventResource extends RepresentationModel {
+public class EventRepresentationModel extends RepresentationModel {
 
     @JsonUnwrapped
     private Event event;
 
-    public EventResource(Event event) {
+    public EventRepresentationModel(Event event) {
         this.event = event;
     }
 
