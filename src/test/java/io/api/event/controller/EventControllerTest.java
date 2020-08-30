@@ -149,7 +149,7 @@ public class EventControllerTest {
 
     @Test
     @TestDescription("입력값이 유효하지 못한 요청의 Bad Request처리 시 Body 유무 확인")
-    public void createEventAPI_Add_Bad_Request_Body_When_Wrong_Input() throws Exception {
+    public void createEventAPI_badRequest_Test() throws Exception {
         Event event = Event.builder()
                 .name("루나소프트 생활 체육회")
                 .description("제 2회 루나 배 풋살 대회")
@@ -163,7 +163,8 @@ public class EventControllerTest {
                 .location("서울시 강남구 일원동 마루공원 풋살장 1면")
                 .build();
 
-        mockMvc.perform(post("/api/event06")
+        String urlTemplate = "/api/events";
+        mockMvc.perform(post(urlTemplate)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .accept(MediaTypes.HAL_JSON)
                 .characterEncoding(StandardCharsets.UTF_8.name())
@@ -171,11 +172,15 @@ public class EventControllerTest {
         )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$[0].objectName").exists())
+//                .andExpect(jsonPath("$[0].objectName").exists())
+//                .andExpect(jsonPath("$[0].defaultMessage").exists())
+//                .andExpect(jsonPath("$[0].code").exists())
 //                .andExpect(jsonPath("$[0].field").exists())
-                .andExpect(jsonPath("$[0].defaultMessage").exists())
-                .andExpect(jsonPath("$[0].code").exists())
 //                .andExpect(jsonPath("$[0].rejectedValue").exists())
+                .andExpect(jsonPath("content[0].objectName").exists())
+                .andExpect(jsonPath("content[0].defaultMessage").exists())
+                .andExpect(jsonPath("content[0].code").exists())
+                .andExpect(jsonPath("_links.index").exists())
         ;
     }
 }

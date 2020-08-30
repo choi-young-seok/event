@@ -5,6 +5,7 @@ import io.api.event.domain.dto.event.EventDto;
 import io.api.event.domain.dto.event.EventEntityModel;
 import io.api.event.domain.entity.event.Event;
 import io.api.event.repository.EventRepository;
+import io.api.event.util.common.ErrorEntityModel;
 import io.api.event.util.event.EventValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -44,23 +45,18 @@ public class EventController {
 
     @PostMapping
     public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors){
-        // @Valid를 통해 특정 객체에 값 Binding시 유효성 검사를 진행 하면서 error가 발생한 경우 errors객체에 error가 담긴다.
         if(errors.hasErrors()){
-            // error가 있는 경우 badReqeust 처리
-            return ResponseEntity.badRequest().body(errors);
+            return badReqeust(errors);
         }
 
         eventValidator.validate(eventDto, errors);
-
         if(errors.hasErrors()){
-            return ResponseEntity.badRequest().body(errors);
+            return badReqeust(errors);
         }
 
-        //EventDto객체를 이용하여 입력 파라미터를 수신 후 Event객체의 setter를이용하여 값을 옮기는 방법을 대체 할 modelMapper
         Event event = modelMapper.map(eventDto, Event.class);
         event.update();
         Event createdEvent = eventRepository.save(event);
-
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(EventController.class).createEvent(eventDto, errors));
         URI createdUri = selfLinkBuilder.toUri();
@@ -71,6 +67,10 @@ public class EventController {
         eventEntityModel.add(new Link("/docs/index.html#resources-events-create").withRel("profile"));
 
         return ResponseEntity.created(createdUri).body(eventEntityModel);
+    }
+
+    private ResponseEntity badReqeust(Errors errors) {
+        return ResponseEntity.badRequest().body(new ErrorEntityModel(errors));
     }
 }
 
