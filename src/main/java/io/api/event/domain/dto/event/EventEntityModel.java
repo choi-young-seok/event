@@ -39,6 +39,7 @@ public class EventEntityModel extends EntityModel<Event> {
          * Spring HATEOAS의 linkto()를 사용하여 mapping정보 변경에도 typeSafe하게 작성
          * */
 //        add(new Link("http://localhost:8080/api/event/" + event.getId()).withSelfRel();
-        add(linkTo(methodOn(EventController.class)).withSelfRel());
+//        add(linkTo(methodOn(EventController.class)).withSelfRel());
+        add(linkTo(EventController.class).slash(event.getId()).withSelfRel());
     }
 }

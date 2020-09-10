@@ -5,6 +5,7 @@ import io.api.event.config.RestDocsConfiguration;
 import io.api.event.domain.dto.event.EventDto;
 import io.api.event.domain.entity.event.Event;
 import io.api.event.domain.entity.event.EventStatus;
+import io.api.event.repository.EventRepository;
 import io.api.event.util.common.TestDescription;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.stream.IntStream;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
@@ -29,6 +31,7 @@ import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.li
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -47,9 +50,12 @@ public class EventControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
+    @Autowired
+    EventRepository eventRepository;
+
     @Test
     @TestDescription("Spring HATEOAS,Spring REST DOCS를 이용한 Mocking TC 결과에 API 응답, 전이가능한 Link정보, API Docs 생성 유무 확인")
-    public void createEventAPI_Success_Test() throws Exception {
+    public void create_EventAPI_Test() throws Exception {
 
         // Given
         EventDto eventDto = EventDto.builder()
@@ -149,7 +155,7 @@ public class EventControllerTest {
 
     @Test
     @TestDescription("입력값이 유효하지 못한 요청의 Bad Request처리 시 Body 유무 확인")
-    public void createEventAPI_badRequest_Test() throws Exception {
+    public void create_EventAPI_badRequest_Test() throws Exception {
         Event event = Event.builder()
                 .name("루나소프트 생활 체육회")
                 .description("제 2회 루나 배 풋살 대회")
@@ -182,5 +188,60 @@ public class EventControllerTest {
                 .andExpect(jsonPath("content[0].code").exists())
                 .andExpect(jsonPath("_links.index").exists())
         ;
+    }
+
+    @Test
+    @TestDescription("Spring HATEOAS,Spring REST DOCS를 이용한 Mocking TC 결과에 API 응답, 전이가능한 Link정보, API Docs 생성 유무 확인")
+    public void get_EventListAPI_Test() throws Exception {
+        // Given
+//        IntStream.range(0, 30).forEach(i -> this.generatedEvent(i));
+        IntStream.range(0, 30).forEach(this::generatedEvent);
+
+        // When
+        String urlTemplate = "/api/events";
+        ResultActions resultActions = mockMvc.perform(get(urlTemplate)
+                .param("page", "1")
+                .param("size", "2")
+                .param("sort", "name,DESC")
+                .characterEncoding(StandardCharsets.UTF_8.name())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON)
+        );
+
+        // Then
+        resultActions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("_embedded.eventList[0]._links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andExpect(jsonPath("_links").exists())
+                .andExpect(jsonPath("_links.first").exists())
+                .andExpect(jsonPath("_links.prev").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.next").exists())
+                .andExpect(jsonPath("_links.last").exists())
+                .andExpect(jsonPath("page").exists())
+                .andExpect(jsonPath("page.size").exists())
+                .andExpect(jsonPath("page.totalElements").exists())
+                .andExpect(jsonPath("page.totalPages").exists())
+                .andExpect(jsonPath("page.number").exists())
+                .andDo(document("query-events"))
+
+        ;
+
+    }
+
+    private void generatedEvent(int index) {
+        Event event = Event.builder()
+                .name("generated event name " + index)
+                .description("test event info " + index)
+                .build();
+
+        eventRepository.save(event);
+    }
+
+    @Test
+    @TestDescription("입력값이 유효하지 못한 요청의 Bad Request 처리 시 Body 유무 확인")
+    public void get_EventListAPI_badRequest_Test(){
+
     }
 }
