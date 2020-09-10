@@ -61,10 +61,10 @@ public class EventControllerTest {
         EventDto eventDto = EventDto.builder()
                 .name("루나소프트 생활 체육회")
                 .description("제 2회 루나 배 풋살 대회")
-                .beginEnrollmentDateTime(LocalDateTime.of(2020, 8, 06, 9, 30 ))
-                .closeEnrollmentDateTime(LocalDateTime.of(2020, 8, 07, 9, 30 ))
-                .beginEventDateTime(LocalDateTime.of(2020, 8, 13, 19, 00))
-                .endEventDateTime(LocalDateTime.of(2020, 8, 13, 22, 00))
+                .beginEnrollmentDateTime(LocalDateTime.of(2020, 8, 6, 9, 30 ))
+                .closeEnrollmentDateTime(LocalDateTime.of(2020, 8, 7, 9, 30 ))
+                .beginEventDateTime(LocalDateTime.of(2020, 8, 13, 19, 0))
+                .endEventDateTime(LocalDateTime.of(2020, 8, 13, 22, 0))
                 .basePrice(100)
                 .maxPrice(200)
                 .limitOfEnrollment(0)
@@ -93,7 +93,7 @@ public class EventControllerTest {
                 .andExpect(jsonPath("_links.query-event").exists())
                 .andExpect(jsonPath("_links.update-event").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                /** write Docs snippets
+                /* write Docs snippets
                  * - Request Header/Body and each Field 문서화
                  * - Response Header/Body and each Field 문서화
                  * - Link info 문서화
@@ -159,10 +159,10 @@ public class EventControllerTest {
         Event event = Event.builder()
                 .name("루나소프트 생활 체육회")
                 .description("제 2회 루나 배 풋살 대회")
-                .beginEnrollmentDateTime(LocalDateTime.of(2020, 8, 06, 9, 30 ))
-                .closeEnrollmentDateTime(LocalDateTime.of(2020, 8, 07, 9, 30 ))
-                .beginEventDateTime(LocalDateTime.of(2020, 8, 6, 19, 00))
-                .endEventDateTime(LocalDateTime.of(2020, 8, 13, 22, 00))
+                .beginEnrollmentDateTime(LocalDateTime.of(2020, 8, 6, 9, 30 ))
+                .closeEnrollmentDateTime(LocalDateTime.of(2020, 8, 7, 9, 30 ))
+                .beginEventDateTime(LocalDateTime.of(2020, 8, 6, 19, 0))
+                .endEventDateTime(LocalDateTime.of(2020, 8, 13, 22, 0))
                 .basePrice(100)
                 .maxPrice(200)
                 .limitOfEnrollment(0)
@@ -230,18 +230,51 @@ public class EventControllerTest {
 
     }
 
-    private void generatedEvent(int index) {
+    private Event generatedEvent(int index) {
         Event event = Event.builder()
                 .name("generated event name " + index)
                 .description("test event info " + index)
                 .build();
 
-        eventRepository.save(event);
+        Event createdEvent = eventRepository.save(event);
+        return createdEvent;
     }
 
     @Test
-    @TestDescription("입력값이 유효하지 못한 요청의 Bad Request 처리 시 Body 유무 확인")
-    public void get_EventListAPI_badRequest_Test(){
+    @TestDescription("하나의 이벤트 조회 : Spring HATEOAS,Spring REST DOCS를 이용한 Mocking TC 결과에 API 응답, 전이가능한 Link정보, API Docs 생성 유무 확인")
+    public void get_EventOneAPI_Test() throws Exception {
+        // Given
+        Event event = this.generatedEvent(100);
 
+        String urlTemplate = "/api/events/{id}";
+        ResultActions resultActions = mockMvc.perform(get(urlTemplate, event.getId())
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding(StandardCharsets.UTF_8.name())
+        );
+
+        resultActions
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("_links").exists())
+                .andDo(document("get-an-event"))
+
+        ;
+    }
+
+    @Test
+    @TestDescription("하나의 이벤트 조회 : 404 Error 유무 확인")
+    public void get_EventOneAPI_NotFount_Test() throws Exception {
+        String urlTemplate = "/api/events/12134";
+        ResultActions resultActions = mockMvc.perform(get(urlTemplate)
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding(StandardCharsets.UTF_8.name())
+        );
+
+        resultActions
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 }
