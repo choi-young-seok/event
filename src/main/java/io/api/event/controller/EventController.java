@@ -1,5 +1,6 @@
 package io.api.event.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.api.event.config.CustomMediaTypes;
 import io.api.event.domain.dto.event.EventDto;
 import io.api.event.domain.dto.event.EventEntityModel;
@@ -13,9 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.LinkRelation;
-import org.springframework.hateoas.Links;
-import org.springframework.hateoas.server.LinkBuilder;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -108,6 +106,40 @@ public class EventController {
         pagedResources.add(new Link("/docs/index.html#resources-events-list").withRel("profile"));
         return ResponseEntity.ok(pagedResources);
     }
+
+    @PutMapping("{id}")
+    public ResponseEntity updateEvent(@PathVariable Integer id, @RequestBody EventDto eventDto, Errors errors) throws JsonProcessingException {
+
+        Optional<Event> optionalEvent = this.eventRepository.findById(id);
+        if(optionalEvent.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+
+        if(errors.hasErrors()){
+            this.badReqeust(errors);
+        }
+        this.eventValidator.validate(eventDto, errors);
+        if(errors.hasErrors()){
+            this.badReqeust(errors);
+        }else {
+            log.info("없나?");
+        }
+
+        Event existingEvent = optionalEvent.get();
+        this.modelMapper.map(eventDto, existingEvent);
+        Event event = this.modelMapper.map(eventDto, Event.class);
+        Event updatedEvent = this.eventRepository.save(event);
+
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(EventController.class).createEvent(eventDto, errors));
+        URI createdUri = selfLinkBuilder.toUri();
+
+        EventEntityModel eventEntityModel = new EventEntityModel(updatedEvent);
+        eventEntityModel.add(selfLinkBuilder.slash(updatedEvent.getId()).withRel("get-event"));
+        eventEntityModel.add(new Link("/docs/index.html#resources-events-update").withRel("profile"));
+
+        return ResponseEntity.ok(eventEntityModel);
+    }
+
 
     private ResponseEntity badReqeust(Errors errors) {
         return ResponseEntity.badRequest().body(new ErrorEntityModel(errors));
