@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component //Bean으로 등록
 @Slf4j
@@ -19,8 +21,12 @@ public class EventValidator {
 
         /* 금액 유효성 검사 : 기본금액이 최대금액보다 크고, 최대 금액이 0이 아닌 경우 */
         if(basePrice > maxPrice && maxPrice != 0){
-            errors.rejectValue("basePrice", "wrongValue", "basePrice is wrong");
-            errors.rejectValue("maxPrice", "wrongValue", "maxPrice is wrong");
+            Map<String, Object> rejectInfoMap = new HashMap();
+            rejectInfoMap.put("basePrice", basePrice);
+            rejectInfoMap.put("maxPrice", maxPrice);
+
+            Object[] wrongValueObjectArray = {rejectInfoMap};
+            errors.reject("wrongValue", wrongValueObjectArray, "price values are wrong");
         }
 
         LocalDateTime beginEnrollmentDateTime = eventDto.getBeginEnrollmentDateTime();
