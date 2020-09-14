@@ -2,11 +2,16 @@ package io.api.event.util.common;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.jackson.JsonComponent;
 import org.springframework.validation.Errors;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Errors객체는 JavaBean Spec을 따르지 않으므로 BeanSerializer를 통해 JSON으로 변환될 수 없음
@@ -15,6 +20,7 @@ import java.io.IOException;
  * 해당 Serializer를 ObjectMppaer에 등록한다.
  * */
 @JsonComponent
+@Slf4j
 public class ErrorsSerializer extends JsonSerializer<Errors> {
 
     @Override
@@ -41,8 +47,13 @@ public class ErrorsSerializer extends JsonSerializer<Errors> {
             try {
                 jsonGenerator.writeStartObject();
                 jsonGenerator.writeStringField("objectName", error.getObjectName());
-                jsonGenerator.writeStringField("code", error.getObjectName());
-                jsonGenerator.writeStringField("efaultMessage", error.getDefaultMessage());
+                jsonGenerator.writeStringField("code", error.getCode());
+                jsonGenerator.writeStringField("defaultMessage", error.getDefaultMessage());
+
+                Object[] arguments = error.getArguments();
+                if(arguments != null){
+                    jsonGenerator.writeStringField("argument", Arrays.toString(error.getArguments()));
+                }
                 jsonGenerator.writeEndObject();
             } catch (IOException ioException) {
                 ioException.printStackTrace();

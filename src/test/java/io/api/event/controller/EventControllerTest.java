@@ -1,5 +1,6 @@
 package io.api.event.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.api.event.config.RestDocsConfiguration;
 import io.api.event.domain.dto.event.EventDto;
@@ -7,6 +8,8 @@ import io.api.event.domain.entity.event.Event;
 import io.api.event.domain.entity.event.EventStatus;
 import io.api.event.repository.EventRepository;
 import io.api.event.util.common.TestDescription;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureRestDocs
 @Import(RestDocsConfiguration.class)
 @ActiveProfiles("test")
+@Slf4j
 public class EventControllerTest {
 
     @Autowired
@@ -58,8 +62,8 @@ public class EventControllerTest {
 
     @Test
     @TestDescription("Spring HATEOAS,Spring REST DOCS를 이용한 Mocking TC 결과에 API 응답, 전이가능한 Link정보, API Docs 생성 유무 확인")
-    public void create_EventAPI_Test() throws Exception {
-
+    @DisplayName("Create Event API : 이벤트 생성 요청")
+    public void createEventAPI_Test() throws Exception {
         // Given
         EventDto eventDto = EventDto.builder()
                 .name("루나소프트 생활 체육회")
@@ -157,8 +161,38 @@ public class EventControllerTest {
     }
 
     @Test
-    @TestDescription("입력값이 유효하지 못한 요청의 Bad Request처리 시 Body 유무 확인")
-    public void create_EventAPI_badRequest_Test() throws Exception {
+    @TestDescription("입력값이 없는 요청의 BadRequest 및 Error 응답 확인")
+    @DisplayName("Create Event API : 입력값이 없는 요청")
+    public void createEventAPI_EmptyRequest_Test() throws Exception {
+        // Given
+        EventDto eventDto = new EventDto();
+
+        // When
+        String urlTemplate = "/api/events";
+        ResultActions resultActions = mockMvc.perform(post(urlTemplate)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .characterEncoding(StandardCharsets.UTF_8.name())
+                .content(objectMapper.writeValueAsString(eventDto))
+        );
+
+        // Then
+        resultActions
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("content").isArray())
+                .andExpect(jsonPath("content[0].objectName").exists())
+                .andExpect(jsonPath("content[0].field").exists())
+                .andExpect(jsonPath("content[0].code").exists())
+                .andExpect(jsonPath("content[0].defaultMessage").exists())
+        ;
+    }
+
+
+    @Test
+    @TestDescription("입력값이 유효하지 못한 요청의 BadRequest 및 Error 응답 확인")
+    @DisplayName("Create Event API : 입력값이 유효하지 못한 요청")
+    public void createEventAPI_wrongParameter_badRequest_Test() throws Exception {
         Event event = Event.builder()
                 .name("루나소프트 생활 체육회")
                 .description("제 2회 루나 배 풋살 대회")
@@ -166,7 +200,7 @@ public class EventControllerTest {
                 .closeEnrollmentDateTime(LocalDateTime.of(2020, 8, 7, 9, 30 ))
                 .beginEventDateTime(LocalDateTime.of(2020, 8, 6, 19, 0))
                 .endEventDateTime(LocalDateTime.of(2020, 8, 13, 22, 0))
-                .basePrice(100)
+                .basePrice(300)
                 .maxPrice(200)
                 .limitOfEnrollment(0)
                 .location("서울시 강남구 일원동 마루공원 풋살장 1면")
@@ -192,6 +226,44 @@ public class EventControllerTest {
                 .andExpect(jsonPath("_links.index").exists())
         ;
     }
+
+    @Test
+    @TestDescription("입력값이 유효하지 못한 요청의 Bad Request처리 시 Body 유무 확인")
+    public void createEventAPI_EmptyParameter_badRequest_Test() throws Exception {
+        Event event = Event.builder()
+                .name("루나소프트 생활 체육회")
+                .description("제 2회 루나 배 풋살 대회")
+                .beginEnrollmentDateTime(LocalDateTime.of(2020, 8, 6, 9, 30 ))
+                .closeEnrollmentDateTime(LocalDateTime.of(2020, 8, 7, 9, 30 ))
+                .beginEventDateTime(LocalDateTime.of(2020, 8, 6, 19, 0))
+                .endEventDateTime(LocalDateTime.of(2020, 8, 13, 22, 0))
+                .basePrice(300)
+                .maxPrice(200)
+                .limitOfEnrollment(0)
+                .location("서울시 강남구 일원동 마루공원 풋살장 1면")
+                .build();
+
+        String urlTemplate = "/api/events";
+        mockMvc.perform(post(urlTemplate)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaTypes.HAL_JSON)
+                .characterEncoding(StandardCharsets.UTF_8.name())
+                .content(objectMapper.writeValueAsString(event))
+        )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$[0].objectName").exists())
+//                .andExpect(jsonPath("$[0].defaultMessage").exists())
+//                .andExpect(jsonPath("$[0].code").exists())
+//                .andExpect(jsonPath("$[0].field").exists())
+//                .andExpect(jsonPath("$[0].rejectedValue").exists())
+                .andExpect(jsonPath("content[0].objectName").exists())
+                .andExpect(jsonPath("content[0].defaultMessage").exists())
+                .andExpect(jsonPath("content[0].code").exists())
+                .andExpect(jsonPath("_links.index").exists())
+        ;
+    }
+
 
     @Test
     @TestDescription("Spring HATEOAS,Spring REST DOCS를 이용한 Mocking TC 결과에 API 응답, 전이가능한 Link정보, API Docs 생성 유무 확인")
@@ -324,9 +396,10 @@ public class EventControllerTest {
     @TestDescription("입력값이 없는 경우 Event 수정 API badRequest 실패")
     public void updateEvent400EmptyBadRequestTest() throws Exception {
         // Given
-        Event event =  this.generatedEvent(100);
-        EventDto eventDto = new EventDto();
-
+        Event event = this.generatedEvent(100);
+//        EventDto eventDto = new EventDto();
+        EventDto eventDto = null;
+        log.info(this.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(event));
         // When
         String urlTemplate = "/api/events/{id}";
         ResultActions resultActions = mockMvc.perform(put(urlTemplate, event.getId())

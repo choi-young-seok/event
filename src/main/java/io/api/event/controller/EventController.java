@@ -1,6 +1,7 @@
 package io.api.event.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.api.event.config.CustomMediaTypes;
 import io.api.event.domain.dto.event.EventDto;
 import io.api.event.domain.dto.event.EventEntityModel;
@@ -17,6 +18,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ObjectUtils;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
@@ -98,31 +100,27 @@ public class EventController {
 
     @GetMapping
     public ResponseEntity queryEvents(Pageable pageable, PagedResourcesAssembler pagedResourcesAssembler){
-
         Page<Event> page = this.eventRepository.findAll(pageable);
 
-//        PagedModel pagedResources = pagedResourcesAssembler.toModel(page);
         var pagedResources = pagedResourcesAssembler.toModel(page, entity -> new EventEntityModel((Event) entity));
         pagedResources.add(new Link("/docs/index.html#resources-events-list").withRel("profile"));
         return ResponseEntity.ok(pagedResources);
     }
 
     @PutMapping("{id}")
-    public ResponseEntity updateEvent(@PathVariable Integer id, @RequestBody EventDto eventDto, Errors errors) throws JsonProcessingException {
-
+    public ResponseEntity updateEvent(@PathVariable Integer id, @RequestBody @Valid EventDto eventDto, Errors errors){
         Optional<Event> optionalEvent = this.eventRepository.findById(id);
         if(optionalEvent.isEmpty()){
             return ResponseEntity.notFound().build();
         }
 
         if(errors.hasErrors()){
-            this.badReqeust(errors);
+            return this.badReqeust(errors);
         }
-        this.eventValidator.validate(eventDto, errors);
+
+        eventValidator.validate(eventDto, errors);
         if(errors.hasErrors()){
-            this.badReqeust(errors);
-        }else {
-            log.info("없나?");
+            return this.badReqeust(errors);
         }
 
         Event existingEvent = optionalEvent.get();
