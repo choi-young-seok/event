@@ -75,7 +75,7 @@
 
         <!--
             - Maven Central URL : https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api
-            - [용석:2020-08-20] : Java Bean객체의 기본 유효성 검사를 위한 jakarta.validation dependency 추가
+            - [용석:2020-08-20] : Java Bean객체의 기본 유효성 검사를 위한 jakarta.validation 추가
         -->
 <!--        <dependency>-->
 <!--            <groupId>jakarta.validation</groupId>-->
@@ -91,6 +91,18 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!--
+            - Maven Central URL : https://mvnrepository.com/artifact/org.springframework.security.oauth.boot/spring-security-oauth2-autoconfigure
+            - [용석:2020-09-16] : Oauth방식을 이용하여 권한/인가 처리를 위한 spring-security-oauth2-autoconfigure  추가
+            - 참고 URL : https://meetup.toast.com/posts/223
+        -->
+        <!--  -->
+        <dependency>
+            <groupId>org.springframework.security.oauth.boot</groupId>
+            <artifactId>spring-security-oauth2-autoconfigure</artifactId>
+            <version>2.1.0.RELEASE</version>
         </dependency>
 
     </dependencies>

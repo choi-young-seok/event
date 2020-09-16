@@ -1,5 +1,6 @@
 package io.api.event.domain.entity.event;
 
+import io.api.event.domain.entity.account.Account;
 import lombok.*;
 
 import javax.persistence.*;
@@ -41,6 +42,9 @@ public class Event {
     private boolean free;
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
+
+    @ManyToOne
+    private Account manager;
 
     public void update() {
         // basePrice / maxPrice 항목의 입력 값에 따른 free 항목 설정

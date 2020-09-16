@@ -2,6 +2,7 @@ package io.api.event.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.api.event.config.RestDocsConfiguration;
+import io.api.event.config.TestConstants;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -23,7 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc // @SpringBootTest annotation을 이용한 통합테스트 진행 시 해당 TC내에서 MockMvc를 주입하기위한 annotation
 @AutoConfigureRestDocs
 @Import(RestDocsConfiguration.class)
-@ActiveProfiles("test") // Test Application 환경 설정
+@ActiveProfiles(TestConstants.TEST) // Test Application 환경 설정
 @Disabled // jUnit4의 @Ignore 대체 annotation : Test를 가지고 있는 class로 간주되지 않도록 설정
 @TestMethodOrder(MethodOrderer.Alphanumeric.class) // Test method name을 이용한 실행순서 정렬
 public class BaseControllerTest {
