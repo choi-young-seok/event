@@ -7,7 +7,6 @@ import io.api.event.domain.entity.event.EventStatus;
 import io.api.event.repository.EventRepository;
 import io.api.event.util.common.TestDescription;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
@@ -68,7 +67,7 @@ public class EventControllerTest extends BaseControllerTest {
          * - 요청/응답 항목을 이용한 REST DOCS document 작성
          *   - 요청 항목(Header/Body) 문서화
          *   - 응답 항목(Header/Body) 문서화
-         *   - Link info 문서화 (self, query-events, update-event, profile)
+         *   - Link info 문서화 (self, get-event-list, update-event, profile)
          */
         resultActions.andDo(print())
                 .andExpect(status().isCreated())
@@ -79,13 +78,13 @@ public class EventControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("offline").value(true))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
                 .andExpect(jsonPath("_links.self").exists())
-                .andExpect(jsonPath("_links.query-event").exists())
+                .andExpect(jsonPath("_links.get-event-list").exists())
                 .andExpect(jsonPath("_links.update-event").exists())
                 .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("create-event",
                         links(
                                 linkWithRel("self").description("link to self"),
-                                linkWithRel("query-event").description("link to query ans event"),
+                                linkWithRel("get-event-list").description("link to query ans event"),
                                 linkWithRel("update-event").description("link to update an existing event"),
                                 linkWithRel("profile").description("link to profile")
                         ),
@@ -125,7 +124,7 @@ public class EventControllerTest extends BaseControllerTest {
                                 fieldWithPath("free").description("it tells if this event is offline"),
                                 fieldWithPath("eventStatus").description("eventStatus of new event"),
                                 fieldWithPath("_links.self.href").description("link to self"),
-                                fieldWithPath("_links.query-event.href").description("link to query an event"),
+                                fieldWithPath("_links.get-event-list.href").description("link to query an event"),
                                 fieldWithPath("_links.update-event.href").description("link to update an existing event"),
                                 fieldWithPath("_links.profile.href").description("link to profile")
                         )
@@ -235,7 +234,7 @@ public class EventControllerTest extends BaseControllerTest {
          * - 요청/응답 항목을 이용한 REST DOCS document 작성
          *   - 요청 항목(Header/Body) 문서화
          *   - 응답 항목(Header/Body) 문서화
-         *   - Link info 문서화 (self, query-events, update-event, profile)
+         *   - Link info 문서화 (self, get-event-list, update-event, profile)
          */
         resultActions.andDo(print())
                 .andExpect(status().isOk())
@@ -252,7 +251,7 @@ public class EventControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("page.totalElements").exists())
                 .andExpect(jsonPath("page.totalPages").exists())
                 .andExpect(jsonPath("page.number").exists())
-                .andDo(document("query-events"))
+                .andDo(document("get-event-list"))
         ;
     }
 
