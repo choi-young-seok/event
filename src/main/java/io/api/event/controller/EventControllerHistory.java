@@ -1,6 +1,6 @@
 package io.api.event.controller;
 
-import io.api.event.config.CustomMediaTypes;
+import io.api.event.util.common.constant.CustomMediaTypes;
 import io.api.event.domain.dto.event.EventDto;
 import io.api.event.domain.dto.event.EventRepresentationModel;
 import io.api.event.domain.dto.event.EventEntityModel;

@@ -1,8 +1,7 @@
-package io.api.event.util.common;
+package io.api.event.util.common.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.jackson.JsonComponent;
@@ -10,8 +9,6 @@ import org.springframework.validation.Errors;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Errors객체는 JavaBean Spec을 따르지 않으므로 BeanSerializer를 통해 JSON으로 변환될 수 없음

@@ -1,11 +1,12 @@
 package io.api.event.controller;
 
-import io.api.event.config.CustomMediaTypes;
+import io.api.event.util.common.constant.CustomMediaTypes;
 import io.api.event.domain.dto.event.EventDto;
 import io.api.event.domain.dto.event.EventEntityModel;
 import io.api.event.domain.entity.event.Event;
 import io.api.event.repository.EventRepository;
-import io.api.event.util.common.ErrorEntityModel;
+import io.api.event.util.common.constant.DocsInfo;
+import io.api.event.util.common.entitymodel.ErrorEntityModel;
 import io.api.event.util.event.EventValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -67,9 +68,9 @@ public class EventController {
         URI createdUri = selfLinkBuilder.toUri();
 
         EventEntityModel eventEntityModel = new EventEntityModel(event);
-        eventEntityModel.add(selfLinkBuilder.slash(createdEvent.getId()).withRel("query-event"));
-        eventEntityModel.add(selfLinkBuilder.slash(createdEvent.getId()).withRel("update-event"));
-        eventEntityModel.add(new Link("/docs/index.html#resources-events-create").withRel("profile"));
+        eventEntityModel.add(selfLinkBuilder.slash(createdEvent.getId()).withRel(DocsInfo.GET_EVENT_LIST));
+        eventEntityModel.add(selfLinkBuilder.slash(createdEvent.getId()).withRel(DocsInfo.UPDATE_EVENT));
+        eventEntityModel.add(new Link(DocsInfo.CREATE_EVENT_DOCS_PATH).withRel(DocsInfo.PROFILE));
 
         return ResponseEntity.created(createdUri).body(eventEntityModel);
     }
@@ -88,7 +89,7 @@ public class EventController {
         }
         Event event = optionalEvent.get();
         EventEntityModel eventEntityModel = new EventEntityModel(event);
-        eventEntityModel.add(new Link("/docs/index.html#resources-events-get").withRel("profile"));
+        eventEntityModel.add(new Link(DocsInfo.GET_EVENT_DOCS_PATH).withRel(DocsInfo.PROFILE));
         return ResponseEntity.ok(eventEntityModel);
     }
 
@@ -104,7 +105,7 @@ public class EventController {
         Page<Event> page = this.eventRepository.findAll(pageable);
 
         var pagedResources = pagedResourcesAssembler.toModel(page, entity -> new EventEntityModel((Event) entity));
-        pagedResources.add(new Link("/docs/index.html#resources-events-list").withRel("profile"));
+        pagedResources.add(new Link(DocsInfo.GET_EVENT_LIST_DOCS_PATH).withRel(DocsInfo.PROFILE));
         return ResponseEntity.ok(pagedResources);
     }
 
@@ -139,8 +140,8 @@ public class EventController {
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(EventController.class).createEvent(eventDto, errors));
         EventEntityModel eventEntityModel = new EventEntityModel(updatedEvent);
-        eventEntityModel.add(selfLinkBuilder.slash(updatedEvent.getId()).withRel("get-event"));
-        eventEntityModel.add(new Link("/docs/index.html#resources-events-update").withRel("profile"));
+        eventEntityModel.add(selfLinkBuilder.slash(updatedEvent.getId()).withRel(DocsInfo.GET_EVENT));
+        eventEntityModel.add(new Link(DocsInfo.UPDATE_EVENT_DOCS_PATH).withRel(DocsInfo.PROFILE));
 
         return ResponseEntity.ok(eventEntityModel);
     }

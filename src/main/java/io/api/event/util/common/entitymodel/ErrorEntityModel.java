@@ -1,4 +1,4 @@
-package io.api.event.util.common;
+package io.api.event.util.common.entitymodel;
 
 import io.api.event.controller.IndexController;
 import org.springframework.hateoas.EntityModel;
