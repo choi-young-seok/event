@@ -43,7 +43,7 @@ class AccountServiceImplTest {
                 .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                 .build();
 
-        Account createdAccount = this.accountRepository.save(account);
+        Account createdAccount = this.accountService.saveAccount(account);
 
         // When
         UserDetailsService userDetailsService = accountService;

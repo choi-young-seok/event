@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -61,4 +63,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // Spring Boot가 제공하는 PathRequest를 이용하여 정적 자원(static)의 경로에 접근하는 요청 인증 제외 처리
         web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
+
+    /**
+     * 인증 과정 없이 허용할 http 요청과 인증 과정이 필요한 http 요청을 정의 한다.
+     * */
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            .anonymous()
+                .and()
+            .formLogin()
+                .and()
+            .authorizeRequests()
+                .mvcMatchers(HttpMethod.GET, "/api/**").anonymous()
+            .anyRequest().authenticated();
+    }
 }
+
+
+
