@@ -1,6 +1,7 @@
 package io.api.event.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.api.event.config.ApplicationProperties;
 import io.api.event.config.RestDocsConfiguration;
 import io.api.event.config.TestConstants;
 import org.junit.jupiter.api.Disabled;
@@ -37,5 +38,8 @@ public class BaseControllerTest {
 
     @Autowired
     protected ModelMapper modelMapper;
+
+    @Autowired
+    protected ApplicationProperties applicationProperties;
 
 }

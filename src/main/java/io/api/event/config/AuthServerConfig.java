@@ -28,6 +28,9 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
     @Autowired
     TokenStore tokenStore;
 
+    @Autowired
+    ApplicationProperties applicationProperties;
+
     /**
      * Client Secret을 확인 하기 위한 passwordEncoder 설정
      */
@@ -39,10 +42,11 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients.inMemory()
-                .withClient("myApp")
-                .authorizedGrantTypes("password", "refresh_token")
+                .withClient(applicationProperties.getCliendId())
+                .authorizedGrantTypes(applicationProperties.getGrantType(), applicationProperties.getGrantTypeValue())
+//                .authorizedGrantTypes("password", "refresh_token")
                 .scopes("read", "write")
-                .secret(this.passwordEncoder.encode("pass"))
+                .secret(this.passwordEncoder.encode(applicationProperties.getAdminPassword()))
                 .accessTokenValiditySeconds(10 * 60)    // accessToken의 만료시간
                 .refreshTokenValiditySeconds(6 * 10 * 60); // refreshToken의 만료시간
     }
