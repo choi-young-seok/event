@@ -61,14 +61,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            // 익명사용자를 허용
+            // 익명 사용자 허용
             .anonymous()
                 .and()
-            // form 인증을 사용
+            // form 인증 사용
             .formLogin()
                 .and()
-            // 인증 없이 허용할 요청을 정의
+            // 인증 허용 요청 정의
             .authorizeRequests()
+                // /api/** 이하의 GET 요청을 인증 없이 허용
                 .mvcMatchers(HttpMethod.GET, "/api/**")
                     .anonymous()
             // 이외에 다른 요청은 인증 처리
