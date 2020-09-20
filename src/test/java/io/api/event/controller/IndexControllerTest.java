@@ -1,6 +1,8 @@
 package io.api.event.controller;
 
 import io.api.event.common.BaseControllerTest;
+import io.api.event.util.common.TestDescription;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
@@ -16,6 +18,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class IndexControllerTest extends BaseControllerTest {
 
     @Test
+    @TestDescription("Spring HATEOAS, Spring REST DOCS를 이용한 API 목차 조회 요청")
+    @DisplayName("Get Index API : API 목차 조회 요청")
     public void ReadIndex_Test() throws Exception {
         // Given
 
