@@ -27,7 +27,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
             .authorizeRequests()
                 // /api/** 이하의 GET 요청을 인증 없이 허용
                 .mvcMatchers(HttpMethod.GET, "/api/**")
-                    .anonymous()
+                    .permitAll()
                 // 이외에 다른 요청은 인증 처리
                 .anyRequest()
                     .authenticated()
