@@ -1,6 +1,5 @@
 package io.api.event.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.api.event.domain.entity.account.Account;
 import io.api.event.domain.entity.account.AccountRole;
 import io.api.event.service.account.AccountService;
@@ -43,7 +42,6 @@ public class ApplicationConfig {
 
             @Override
             public void run(ApplicationArguments args) throws Exception {
-                log.info(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(applicationProperties));
 
                 Account admin = Account.builder()
                         .email(applicationProperties.getAdminUserName())

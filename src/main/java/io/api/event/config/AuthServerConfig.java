@@ -44,9 +44,8 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
         clients.inMemory()
                 .withClient(applicationProperties.getCliendId())
                 .authorizedGrantTypes(applicationProperties.getGrantType(), applicationProperties.getGrantTypeValue())
-//                .authorizedGrantTypes("password", "refresh_token")
                 .scopes("read", "write")
-                .secret(this.passwordEncoder.encode(applicationProperties.getAdminPassword()))
+                .secret(this.passwordEncoder.encode(applicationProperties.getClinetSecret()))
                 .accessTokenValiditySeconds(10 * 60)    // accessToken의 만료시간
                 .refreshTokenValiditySeconds(6 * 10 * 60); // refreshToken의 만료시간
     }
