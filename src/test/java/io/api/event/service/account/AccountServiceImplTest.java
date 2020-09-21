@@ -1,5 +1,6 @@
 package io.api.event.service.account;
 
+import io.api.event.config.ApplicationProperties;
 import io.api.event.config.TestConstants;
 import io.api.event.domain.entity.account.Account;
 import io.api.event.domain.entity.account.AccountRole;
@@ -29,10 +30,13 @@ class AccountServiceImplTest {
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    @Autowired
+    ApplicationProperties applicationProperties;
+
     @Test
     @TestDescription("Spring security의 UserDetailsService를 이용한 권한 인증 여부 확인")
-    @DisplayName("Account Service : 로그인 요청")
-    public void findByUserName_Test(){
+    @DisplayName("Account Service : Account 생성 및 인증")
+    public void CreateAccountAndFindByUserName_Test(){
         // Given
         String email = "testAdmin@naver.com";
         String password = "testAdmin_password";
@@ -51,6 +55,18 @@ class AccountServiceImplTest {
 
         // Then
         assertThat(this.passwordEncoder.matches(password, userDetails.getPassword())).isTrue();
+    }
+
+    @Test
+    @TestDescription("Spring security의 UserDetailsService를 이용한 권한 인증 여부 확인")
+    @DisplayName("Account Service : Account 인증")
+    public void AccountAuthorizedAndFindByUserName_Test(){
+        // When
+        UserDetailsService userDetailsService = accountService;
+        UserDetails userDetails = userDetailsService.loadUserByUsername(applicationProperties.getUserUserName());
+
+        // Then
+        assertThat(this.passwordEncoder.matches(applicationProperties.getUserPassword(), userDetails.getPassword())).isTrue();
     }
 
     @Test

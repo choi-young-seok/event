@@ -8,7 +8,6 @@ import io.api.event.repository.EventRepository;
 import io.api.event.repository.account.AccountRepository;
 import io.api.event.service.account.AccountService;
 import io.api.event.util.common.TestDescription;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,11 +42,6 @@ public class EventControllerTest extends BaseControllerTest {
     @Autowired
     AccountService accountService;
 
-    @BeforeEach
-    public void setUpRepository(){
-        this.eventRepository.deleteAll();
-        this.accountRepository.deleteAll();
-    }
 
     @Test
     @TestDescription("Spring HATEOAS, Spring REST DOCS를 이용한 API 응답, 전이 가능한 Link정보, Docs 생성 유무 확인")
@@ -490,14 +484,20 @@ public class EventControllerTest extends BaseControllerTest {
     }
 
     private String getAccessToken() throws Exception {
+        // Given
+        String clientId = applicationProperties.getCliendId();
+        String clientSecret = applicationProperties.getClinetSecret();
+        String userEmail = applicationProperties.getUserUserName();
+        String userPassword = applicationProperties.getUserPassword();
+        String grantType = applicationProperties.getGrantType();
+
         // When
         String urlTemplate = "/oauth/token";
         ResultActions resultActions = this.mockMvc.perform(post(urlTemplate)
-                .with(httpBasic(applicationProperties.getCliendId(), applicationProperties.getClinetSecret())) // clientId와 clientSecret를 이용한 basicOath Header 생성
-                .param("username", applicationProperties.getUserUserName())
-                .param("password", applicationProperties.getUserPassword())
-//                .param("grant_type", applicationProperties.getGrantTypeValue())
-                .param("grant_type", "password")
+                .with(httpBasic(clientId, clientSecret)) // clientId와 clientSecret를 이용한 basicOath Header 생성
+                .param("username", userEmail)
+                .param("password", userPassword)
+                .param("grant_type", grantType)
                 .characterEncoding(StandardCharsets.UTF_8.name())
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
