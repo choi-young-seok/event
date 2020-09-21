@@ -2,8 +2,6 @@ package io.api.event.controller;
 
 import io.api.event.common.BaseControllerTest;
 import io.api.event.domain.dto.event.EventDto;
-import io.api.event.domain.entity.account.Account;
-import io.api.event.domain.entity.account.AccountRole;
 import io.api.event.domain.entity.event.Event;
 import io.api.event.domain.entity.event.EventStatus;
 import io.api.event.repository.EventRepository;
@@ -22,7 +20,6 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.stream.IntStream;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
@@ -493,28 +490,13 @@ public class EventControllerTest extends BaseControllerTest {
     }
 
     private String getAccessToken() throws Exception {
-        // Given
-        String email = "rcn115@naver.com";
-        String password = "chldydtjr1!";
-        Set<AccountRole> roles = Set.of(AccountRole.ADMIN, AccountRole.USER);
-
-        Account account = Account.builder()
-                .email(email)
-                .password(password)
-                .roles(roles)
-                .build();
-
-        Account savedAccount = this.accountService.saveAccount(account);
-
-        String clientId = "myApp";
-        String clientSecret = "pass";
-
         // When
         String urlTemplate = "/oauth/token";
         ResultActions resultActions = this.mockMvc.perform(post(urlTemplate)
-                .with(httpBasic(clientId, clientSecret)) // clientId와 clientSecret를 이용한 basicOath Header 생성
-                .param("username", email)
-                .param("password", password)
+                .with(httpBasic(applicationProperties.getCliendId(), applicationProperties.getClinetSecret())) // clientId와 clientSecret를 이용한 basicOath Header 생성
+                .param("username", applicationProperties.getUserUserName())
+                .param("password", applicationProperties.getUserPassword())
+//                .param("grant_type", applicationProperties.getGrantTypeValue())
                 .param("grant_type", "password")
                 .characterEncoding(StandardCharsets.UTF_8.name())
                 .accept(MediaTypes.HAL_JSON_VALUE)

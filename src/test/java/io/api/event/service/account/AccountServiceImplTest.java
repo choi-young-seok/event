@@ -34,8 +34,8 @@ class AccountServiceImplTest {
     @DisplayName("Account Service : 로그인 요청")
     public void findByUserName_Test(){
         // Given
-        String email = "rcn115@naver.com";
-        String password = "chldydtjr1!";
+        String email = "testAdmin@naver.com";
+        String password = "testAdmin_password";
 
         Account account = Account.builder()
                 .email(email)

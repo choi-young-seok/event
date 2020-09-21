@@ -104,6 +104,18 @@
             <scope>test</scope>
         </dependency>
 
+        <!--
+            - Maven Central URL : https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-configuration-processor
+            - [용석:2020-09-20] : Custom Configuration metadata설정을 위한 spring-boot-configuration-processor 추가
+              - application.properties 파일에 Custom Configuration 항목을 자동 완성 할 수 있는 기능 제공
+            - 참조 URL : https://docs.spring.io/spring-boot/docs/2.3.3.RELEASE/reference/html/appendix-configuration-metadata.html#configuration-metadata-annotation-processor
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
     </dependencies>
 
     <build>
