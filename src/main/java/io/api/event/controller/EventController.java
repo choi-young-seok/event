@@ -68,7 +68,7 @@ public class EventController {
         URI createdUri = selfLinkBuilder.toUri();
 
         EventEntityModel eventEntityModel = new EventEntityModel(event);
-        eventEntityModel.add(selfLinkBuilder.slash(createdEvent.getId()).withRel(DocsInfo.GET_EVENT_LIST));
+        eventEntityModel.add(selfLinkBuilder.withRel(DocsInfo.GET_EVENT_LIST));
         eventEntityModel.add(selfLinkBuilder.slash(createdEvent.getId()).withRel(DocsInfo.UPDATE_EVENT));
         eventEntityModel.add(new Link(DocsInfo.CREATE_EVENT_DOCS_PATH).withRel(DocsInfo.PROFILE));
 
