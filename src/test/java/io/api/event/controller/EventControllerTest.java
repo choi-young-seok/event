@@ -2,12 +2,15 @@ package io.api.event.controller;
 
 import io.api.event.common.BaseControllerTest;
 import io.api.event.domain.dto.event.EventDto;
+import io.api.event.domain.entity.account.Account;
+import io.api.event.domain.entity.account.AccountRole;
 import io.api.event.domain.entity.event.Event;
 import io.api.event.domain.entity.event.EventStatus;
 import io.api.event.repository.EventRepository;
 import io.api.event.repository.account.AccountRepository;
 import io.api.event.service.account.AccountService;
 import io.api.event.util.common.TestDescription;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
@@ -41,6 +45,12 @@ public class EventControllerTest extends BaseControllerTest {
 
     @Autowired
     AccountService accountService;
+
+    @BeforeEach
+    public void setUpRepository(){
+        eventRepository.deleteAll();
+        accountRepository.deleteAll();
+    }
 
 
     @Test
@@ -490,6 +500,13 @@ public class EventControllerTest extends BaseControllerTest {
         String userEmail = applicationProperties.getUserUserName();
         String userPassword = applicationProperties.getUserPassword();
         String grantType = applicationProperties.getGrantType();
+
+        Account userAccount = Account.builder()
+                .email(userEmail)
+                .password(userPassword)
+                .roles(Set.of(AccountRole.USER))
+                .build();
+        this.accountService.saveAccount(userAccount);
 
         // When
         String urlTemplate = "/oauth/token";
