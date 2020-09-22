@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.security.oauth2.common.util.Jackson2JsonParser;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -30,11 +31,18 @@ import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.li
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * https://velog.io/@kingcjy/Spring-REST-Docs%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%9C-API-%EB%AC%B8%EC%84%9C-%EC%9E%90%EB%8F%99%ED%99%94
+ * https://woowabros.github.io/experience/2018/12/28/spring-rest-docs.html
+ */
+//@AutoConfigureRestDocs()
 public class EventControllerTest extends BaseControllerTest {
 
     @Autowired
@@ -121,7 +129,7 @@ public class EventControllerTest extends BaseControllerTest {
                                 fieldWithPath("closeEnrollmentDateTime").description("Date time of close enrollment of new event"),
                                 fieldWithPath("beginEventDateTime").description("Date time of begin of new event"),
                                 fieldWithPath("endEventDateTime").description("Date time of close of new event"),
-                                fieldWithPath("location").description("Location of new event"),
+                                fieldWithPath("location").description("Location of new event").optional(),
                                 fieldWithPath("basePrice").description("Base Price of new event"),
                                 fieldWithPath("maxPrice").description("MaxPrice of new event"),
                                 fieldWithPath("limitOfEnrollment").description("Limit of enrollment of new event")
@@ -280,6 +288,10 @@ public class EventControllerTest extends BaseControllerTest {
         ;
     }
 
+    /**
+     * Rest Docs의 pathParameters를 사용하기 위해 MockMvcBuilders.get -> RestDocumentationRequestBuilders.get 수정
+     * 참조 URL : https://java.ihoney.pe.kr/517
+     */
     @Test
     @TestDescription("Spring HATEOAS, Spring REST DOCS를 이용한 API 응답, 전이 가능한 Link정보, Docs 생성 유무 확인")
     @DisplayName("Get Event API : 이벤트 조회 요청")
@@ -287,9 +299,9 @@ public class EventControllerTest extends BaseControllerTest {
         // Given
         Event event = this.generatedEvent(100);
 
-        // When
+        // When :
         String urlTemplate = "/api/events/{id}";
-        ResultActions resultActions = mockMvc.perform(get(urlTemplate, event.getId())
+        ResultActions resultActions = mockMvc.perform(RestDocumentationRequestBuilders.get("/api/events/{id}", event.getId())
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(StandardCharsets.UTF_8.name())
@@ -310,7 +322,41 @@ public class EventControllerTest extends BaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("_links").exists())
-                .andDo(document("get-an-event"))
+                .andDo(document("get-an-event",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("accept header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("content type haeder")
+                        ),
+                        pathParameters(
+                                parameterWithName("id").description("이벤트 ID")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Response content type")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("identifier of new event"),
+                                fieldWithPath("name").description("Name of new event"),
+                                fieldWithPath("description").description("Description of new event"),
+                                fieldWithPath("beginEnrollmentDateTime").description("Date time of begin enrollment of new event"),
+                                fieldWithPath("closeEnrollmentDateTime").description("Date time of close enrollment of new event"),
+                                fieldWithPath("beginEventDateTime").description("Date time of begin of new event"),
+                                fieldWithPath("endEventDateTime").description("Date time of close of new event"),
+                                fieldWithPath("location").description("Location of new event"),
+                                fieldWithPath("basePrice").description("Base Price of new event"),
+                                fieldWithPath("maxPrice").description("MaxPrice of new event"),
+                                fieldWithPath("limitOfEnrollment").description("Limit of enrollment of new event"),
+                                fieldWithPath("offline").description("it tells if this event is free"),
+                                fieldWithPath("free").description("it tells if this event is offline"),
+                                fieldWithPath("eventStatus").description("eventStatus of new event"),
+                                fieldWithPath("manager").description("manager info of event"),
+                                fieldWithPath("_links.self.href").description("link to self"),
+                                fieldWithPath("_links.profile.href").description("link to profile")
+                        )
+                ))
         ;
     }
 
