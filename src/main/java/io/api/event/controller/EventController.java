@@ -1,10 +1,12 @@
 package io.api.event.controller;
 
-import io.api.event.util.common.constant.CustomMediaTypes;
+import io.api.event.domain.dto.account.CurrentUser;
 import io.api.event.domain.dto.event.EventDto;
 import io.api.event.domain.dto.event.EventEntityModel;
+import io.api.event.domain.entity.account.Account;
 import io.api.event.domain.entity.event.Event;
 import io.api.event.repository.EventRepository;
+import io.api.event.util.common.constant.CustomMediaTypes;
 import io.api.event.util.common.constant.DocsInfo;
 import io.api.event.util.common.entitymodel.ErrorEntityModel;
 import io.api.event.util.event.EventValidator;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -24,6 +27,8 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.Optional;
 
+import static io.api.event.util.common.constant.DocsInfo.CREATE_EVENT;
+import static io.api.event.util.common.constant.DocsInfo.UPDATE_EVENT;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -50,7 +55,9 @@ public class EventController {
      * @apiNote events-create Document : {@link }
      */
     @PostMapping
-    public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors){
+    public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto,
+                                      Errors errors,
+                                      @CurrentUser Account currentUser){
         if(errors.hasErrors()){
             return badRequest(errors);
         }
@@ -62,14 +69,15 @@ public class EventController {
 
         Event event = modelMapper.map(eventDto, Event.class);
         event.update();
+        event.setManager(currentUser);
         Event createdEvent = eventRepository.save(event);
 
-        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(EventController.class).createEvent(eventDto, errors));
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(EventController.class).createEvent(eventDto, errors, currentUser));
         URI createdUri = selfLinkBuilder.toUri();
 
         EventEntityModel eventEntityModel = new EventEntityModel(event);
         eventEntityModel.add(selfLinkBuilder.withRel(DocsInfo.GET_EVENT_LIST));
-        eventEntityModel.add(selfLinkBuilder.slash(createdEvent.getId()).withRel(DocsInfo.UPDATE_EVENT));
+        eventEntityModel.add(selfLinkBuilder.slash(createdEvent.getId()).withRel(UPDATE_EVENT));
         eventEntityModel.add(new Link(DocsInfo.CREATE_EVENT_DOCS_PATH).withRel(DocsInfo.PROFILE));
 
         return ResponseEntity.created(createdUri).body(eventEntityModel);
@@ -82,7 +90,8 @@ public class EventController {
      * @apiNote events-get Document : {@link }
      */
     @GetMapping("/{id}")
-    public ResponseEntity getEvent(@PathVariable Integer id){
+    public ResponseEntity getEvent(@PathVariable Integer id,
+                                   @CurrentUser Account currentUser){
         Optional<Event> optionalEvent = this.eventRepository.findById(id);
         if(optionalEvent.isEmpty()){
             return this.notFound();
@@ -90,6 +99,9 @@ public class EventController {
         Event event = optionalEvent.get();
         EventEntityModel eventEntityModel = new EventEntityModel(event);
         eventEntityModel.add(new Link(DocsInfo.GET_EVENT_DOCS_PATH).withRel(DocsInfo.PROFILE));
+        if(event.getManager().equals(currentUser)){
+            eventEntityModel.add(linkTo(EventController.class).slash(event.getId()).withRel(UPDATE_EVENT));
+        }
         return ResponseEntity.ok(eventEntityModel);
     }
 
@@ -101,11 +113,18 @@ public class EventController {
      * @return 200 Ok
      */
     @GetMapping
-    public ResponseEntity getEventList(Pageable pageable, PagedResourcesAssembler pagedResourcesAssembler){
+    public ResponseEntity getEventList(Pageable pageable,
+                                       PagedResourcesAssembler pagedResourcesAssembler,
+                                       @CurrentUser Account currentUser){
         Page<Event> page = this.eventRepository.findAll(pageable);
 
         var pagedResources = pagedResourcesAssembler.toModel(page, entity -> new EventEntityModel((Event) entity));
         pagedResources.add(new Link(DocsInfo.GET_EVENT_LIST_DOCS_PATH).withRel(DocsInfo.PROFILE));
+
+        if (currentUser != null){
+            pagedResources.add(linkTo(EventController.class).withRel(CREATE_EVENT));
+        }
+
         return ResponseEntity.ok(pagedResources);
     }
 
@@ -118,7 +137,10 @@ public class EventController {
      * @apiNote events-update Document : {@link }
      */
     @PutMapping("{id}")
-    public ResponseEntity updateEvent(@PathVariable Integer id, @RequestBody @Valid EventDto eventDto, Errors errors){
+    public ResponseEntity updateEvent(@PathVariable Integer id,
+                                      @RequestBody @Valid EventDto eventDto,
+                                      Errors errors,
+                                      @CurrentUser Account currentUser){
         Optional<Event> optionalEvent = this.eventRepository.findById(id);
         if(optionalEvent.isEmpty()){
             return this.notFound();
@@ -134,11 +156,14 @@ public class EventController {
         }
 
         Event existingEvent = optionalEvent.get();
+        if(existingEvent.getManager().equals(currentUser)){
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
         this.modelMapper.map(eventDto, existingEvent);
         Event event = this.modelMapper.map(eventDto, Event.class);
         Event updatedEvent = this.eventRepository.save(event);
 
-        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(EventController.class).createEvent(eventDto, errors));
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(EventController.class).createEvent(eventDto, errors, currentUser));
         EventEntityModel eventEntityModel = new EventEntityModel(updatedEvent);
         eventEntityModel.add(selfLinkBuilder.slash(updatedEvent.getId()).withRel(DocsInfo.GET_AN_EVENT));
         eventEntityModel.add(new Link(DocsInfo.UPDATE_EVENT_DOCS_PATH).withRel(DocsInfo.PROFILE));

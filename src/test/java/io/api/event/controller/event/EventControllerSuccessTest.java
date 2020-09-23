@@ -156,6 +156,55 @@ public class EventControllerSuccessTest extends BaseControllerTest {
         ;
     }
 
+    @Test
+    @TestDescription("Spring HATEOAS, Spring REST DOCS를 이용한 API 응답, 전이 가능한 Link정보, Docs 생성 유무 확인")
+    @DisplayName("Get Event List API : 이벤트 목록 조회 요청")
+    public void getEventListApiByAuthenticatedAccount() throws Exception {
+        // Given
+        IntStream.range(0, 30).forEach(eventDomainGenerator::generatedEvent);
+
+        // When
+        String urlTemplate = "/api/events";
+        ResultActions resultActions = mockMvc.perform(get(urlTemplate)
+                .header(HttpHeaders.AUTHORIZATION, authInfoGenerator.getBearerToken())
+                .param("page", "1")
+                .param("size", "2")
+                .param("sort", "name,DESC")
+                .characterEncoding(StandardCharsets.UTF_8.name())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON)
+        );
+
+        /** Then : Check list
+         * - 응답 코드 확인 : 200 Ok
+         * - 응답 헤더 확인 : Location, Content-Type
+         * - 응답 바디 확인 : paging 처리 관련 정보 (total Count, per Page, total Page, current Page)
+         * - 응답 내 링크 항목 확인 : _links -> self, first, prev, self, next, last, profile
+         * - 요청/응답 항목을 이용한 REST DOCS document 작성
+         *   - 요청 항목(Header/Body) 문서화
+         *   - 응답 항목(Header/Body) 문서화
+         *   - Link info 문서화 (self, get-event-list, update-event, profile)
+         */
+        resultActions.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("_embedded.eventList[0]._links.self").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andExpect(jsonPath("_links.create-event").exists())
+                .andExpect(jsonPath("_links.first").exists())
+                .andExpect(jsonPath("_links.prev").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.next").exists())
+                .andExpect(jsonPath("_links.last").exists())
+                .andExpect(jsonPath("page").exists())
+                .andExpect(jsonPath("page.size").exists())
+                .andExpect(jsonPath("page.totalElements").exists())
+                .andExpect(jsonPath("page.totalPages").exists())
+                .andExpect(jsonPath("page.number").exists())
+//                .andDo(getEventList())
+        ;
+    }
+
     /**
      * Rest Docs의 pathParameters를 사용하기 위해 MockMvcBuilders.get -> RestDocumentationRequestBuilders.get 수정
      * 참조 URL : https://java.ihoney.pe.kr/517

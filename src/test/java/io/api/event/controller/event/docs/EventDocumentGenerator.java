@@ -44,7 +44,7 @@ public class EventDocumentGenerator {
                         headerWithName(HttpHeaders.LOCATION).description("Location header"),
                         headerWithName(HttpHeaders.CONTENT_TYPE).description("Response content type")
                 ),
-                responseFields(
+                relaxedResponseFields(
                         fieldWithPath("id").description("identifier of new event"),
                         fieldWithPath("name").description("Name of new event"),
                         fieldWithPath("description").description("Description of new event"),
