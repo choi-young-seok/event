@@ -1,4 +1,4 @@
-package io.api.event.config;
+package io.api.event.config.test;
 
 import org.springframework.restdocs.operation.preprocess.OperationRequestPreprocessor;
 import org.springframework.restdocs.operation.preprocess.OperationResponsePreprocessor;

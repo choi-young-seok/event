@@ -1,4 +1,4 @@
-package io.api.event.config;
+package io.api.event.config.test;
 
 public interface TestConstants {
 

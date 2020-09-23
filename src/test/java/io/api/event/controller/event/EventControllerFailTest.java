@@ -1,4 +1,4 @@
-package io.api.event.controller;
+package io.api.event.controller.event;
 
 import io.api.event.common.BaseControllerTest;
 import io.api.event.domain.dto.event.EventDto;

@@ -37,9 +37,9 @@ public class Event {
     private int maxPrice; // (optional)
     private int limitOfEnrollment;
     private boolean offline;
+    private boolean free;
 
     //default value로 DRAFT를 지정
-    private boolean free;
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
 
