@@ -1,21 +1,14 @@
 package io.api.event.service.account;
 
+import io.api.event.domain.dto.account.AccountAdapter;
 import io.api.event.domain.entity.account.Account;
-import io.api.event.domain.entity.account.AccountRole;
 import io.api.event.repository.account.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class AccountService implements UserDetailsService {
@@ -52,14 +45,7 @@ public class AccountService implements UserDetailsService {
          *  - UserDetails interface로 객체 변환 처리를 구현할 경우 모든 메소드를 구혆해야하므로,
          *  - UserDetails의 User객체를 이용하여 Account객체를 Spring Security의 UserDetails 객체로 변환한다.
          */
-        return new User(account.getEmail(), account.getPassword(), authorities(account.getRoles()));
-    }
-
-    // Mapping AccountRole to GrantedAuthority
-    private Collection<? extends GrantedAuthority> authorities(Set<AccountRole> roles) {
-       return roles.stream()
-               .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
-               .collect(Collectors.toSet());
+        return new AccountAdapter(account);
     }
 }
 
