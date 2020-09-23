@@ -1,4 +1,4 @@
-package io.api.event.controller;
+package io.api.event.controller.index;
 
 import io.api.event.common.BaseControllerTest;
 import io.api.event.util.common.TestDescription;
@@ -10,6 +10,8 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
 
+import static io.api.event.util.common.constant.DocsInfo.INDEX;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -35,8 +37,7 @@ class IndexControllerTest extends BaseControllerTest {
         resultActions.andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("_links.events").exists())
-                .andDo(this.restDocumentationResultHandler.document()
-                )
+                .andDo(document(INDEX))
         ;
 
     }

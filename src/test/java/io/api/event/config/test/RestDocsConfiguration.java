@@ -1,4 +1,4 @@
-package io.api.event.config;
+package io.api.event.config.test;
 
 import org.springframework.boot.test.autoconfigure.restdocs.RestDocsMockMvcConfigurationCustomizer;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -12,7 +12,7 @@ public class RestDocsConfiguration {
     @Bean
     public RestDocsMockMvcConfigurationCustomizer restDocsMockMvcConfigurationCustomizer(){
 //        return new RestDocsMockMvcConfigurationCustomizer() {
-//            @OverrideE
+//            @Override
 //            public void customize(MockMvcRestDocumentationConfigurer configurer) {
 //                configurer.operationPreprocessors()
 //                        .withRequestDefaults(prettyPrint())

@@ -50,6 +50,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) throws Exception {
         // docs에 접근 하는 요청 인증 처리 제외
         web.ignoring().mvcMatchers("/docs/index.html");
+        web.ignoring().mvcMatchers("/favicon.ico");
+        web.ignoring().mvcMatchers("/error");
 
         // Spring Boot가 제공하는 PathRequest를 이용하여 정적 자원(static)의 경로에 접근하는 요청 인증 제외 처리
         web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
@@ -71,7 +73,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
                 // /api/** 이하의 GET 요청을 인증 없이 허용
                 .mvcMatchers(HttpMethod.GET, "/api/**")
-                    .anonymous()
+                    .permitAll()
             // 이외에 다른 요청은 인증 처리
             .anyRequest()
                 .authenticated();

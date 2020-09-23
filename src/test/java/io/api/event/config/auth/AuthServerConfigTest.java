@@ -1,4 +1,4 @@
-package io.api.event.config;
+package io.api.event.config.auth;
 
 import io.api.event.common.BaseControllerTest;
 import io.api.event.domain.entity.account.Account;
@@ -10,18 +10,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
-import static org.springframework.restdocs.headers.HeaderDocumentation.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static io.api.event.config.auth.docs.AuthDocumentGenerator.getAuthDocument;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -76,7 +71,7 @@ class AuthServerConfigTest extends BaseControllerTest {
     @Test
     @TestDescription("존재하는 Account의 인증 및 인증 토큰 발급 테스트")
     @DisplayName("AuthService : Account 인증 및 토큰 발급")
-    public void getAuthInfo() throws Exception {
+    public void getAuth() throws Exception {
         String clientId = applicationProperties.getCliendId();
         String clientSecret = applicationProperties.getClinetSecret();
         String userEmail = applicationProperties.getUserUserName();
@@ -99,29 +94,7 @@ class AuthServerConfigTest extends BaseControllerTest {
         resultActions.andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("access_token").exists())
-//                .andDo(document("get-auth-info",
-                .andDo(this.restDocumentationResultHandler.document(
-                        requestHeaders(
-                                headerWithName(HttpHeaders.ACCEPT).description("accept header"),
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("content type haeder"),
-                                headerWithName(HttpHeaders.AUTHORIZATION).description("client ID와 clientSecret으로 이루어진 인증 정보")
-                        ),
-                        requestParameters(
-                                parameterWithName("username").description("이메일"),
-                                parameterWithName("password").description("패스워드"),
-                                parameterWithName("grant_type").description("인증 타입")
-                        ),
-                        responseHeaders(
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Response content type")
-                        ),
-                        responseFields(
-                                fieldWithPath("access_token").description("접근 토큰"),
-                                fieldWithPath("token_type").description("토큰 타입"),
-                                fieldWithPath("refresh_token").description("접근 토큰 갱신 토큰"),
-                                fieldWithPath("expires_in").description("만료기간"),
-                                fieldWithPath("scope").description("접근 권한 요청")
-                        )
-                ))
+                .andDo(getAuthDocument())
         ;
     }
 }

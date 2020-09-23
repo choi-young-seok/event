@@ -1,7 +1,7 @@
 package io.api.event.service.account;
 
 import io.api.event.config.ApplicationProperties;
-import io.api.event.config.TestConstants;
+import io.api.event.config.test.TestConstants;
 import io.api.event.domain.entity.account.Account;
 import io.api.event.domain.entity.account.AccountRole;
 import io.api.event.util.common.TestDescription;

@@ -140,7 +140,7 @@ public class EventController {
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(methodOn(EventController.class).createEvent(eventDto, errors));
         EventEntityModel eventEntityModel = new EventEntityModel(updatedEvent);
-        eventEntityModel.add(selfLinkBuilder.slash(updatedEvent.getId()).withRel(DocsInfo.GET_EVENT));
+        eventEntityModel.add(selfLinkBuilder.slash(updatedEvent.getId()).withRel(DocsInfo.GET_AN_EVENT));
         eventEntityModel.add(new Link(DocsInfo.UPDATE_EVENT_DOCS_PATH).withRel(DocsInfo.PROFILE));
 
         return ResponseEntity.ok(eventEntityModel);
