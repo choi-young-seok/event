@@ -10,7 +10,6 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
 
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -21,7 +20,7 @@ class IndexControllerTest extends BaseControllerTest {
     @Test
     @TestDescription("Spring HATEOAS, Spring REST DOCS를 이용한 API 목차 조회 요청")
     @DisplayName("Get Index API : API 목차 조회 요청")
-    public void ReadIndex_Test() throws Exception {
+    public void indexApi() throws Exception {
         // Given
 
         // When
@@ -36,7 +35,8 @@ class IndexControllerTest extends BaseControllerTest {
         resultActions.andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("_links.events").exists())
-                .andDo(document("index"))
+                .andDo(this.restDocumentationResultHandler.document()
+                )
         ;
 
     }

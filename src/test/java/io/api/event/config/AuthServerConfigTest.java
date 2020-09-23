@@ -6,23 +6,18 @@ import io.api.event.domain.entity.account.AccountRole;
 import io.api.event.repository.account.AccountRepository;
 import io.api.event.service.account.AccountService;
 import io.api.event.util.common.TestDescription;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -40,17 +35,6 @@ class AuthServerConfigTest extends BaseControllerTest {
 
     @Autowired
     AccountRepository accountRepository;
-
-    private RestDocumentationResultHandler document;
-
-    @BeforeEach
-    public void setUoDocument(){
-        this.document = document(
-//                "{class-name}/{method-name}",
-                "{method-name}",
-                preprocessResponse(prettyPrint())
-        );
-    }
 
     @Test
     @TestDescription("Account 생성 및 인증 후 인증 토큰 발급 테스트")
@@ -116,7 +100,7 @@ class AuthServerConfigTest extends BaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("access_token").exists())
 //                .andDo(document("get-auth-info",
-                .andDo(document.document(
+                .andDo(this.restDocumentationResultHandler.document(
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("accept header"),
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("content type haeder"),
@@ -140,5 +124,4 @@ class AuthServerConfigTest extends BaseControllerTest {
                 ))
         ;
     }
-
 }

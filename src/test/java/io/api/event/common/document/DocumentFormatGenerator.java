@@ -7,6 +7,7 @@ public interface DocumentFormatGenerator {
         return Attributes.key("format").value("yyyy-MM-dd");
     }
 
+    public static String DATETIME_FORMAT = "DateTime";
     static Attributes.Attribute getDateTimeFormat() {
         return Attributes.key("format").value("yyyy-MM-dd HH:mm:ss");
     }

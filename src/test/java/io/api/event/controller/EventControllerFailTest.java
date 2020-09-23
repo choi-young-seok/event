@@ -23,10 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-/**
- * https://velog.io/@kingcjy/Spring-REST-Docs%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%9C-API-%EB%AC%B8%EC%84%9C-%EC%9E%90%EB%8F%99%ED%99%94
- * https://woowabros.github.io/experience/2018/12/28/spring-rest-docs.html
- */
+
 //@AutoConfigureRestDocs()
 public class EventControllerFailTest extends BaseControllerTest {
 
