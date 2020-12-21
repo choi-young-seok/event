@@ -30,24 +30,15 @@ public class AuthInfoGenerator {
     @Autowired
     MockMvc mockMvc;
 
-    public String getBearerToken() throws Exception {
-        return "Bearer " + this.getAccessToken();
+    public String getBearerToken(String userEmail, String userPassword) throws Exception {
+        return "Bearer " + this.getAccessToken(userEmail, userPassword);
     }
 
-    public String getAccessToken() throws Exception {
+    public String getAccessToken(String userEmail, String userPassword) throws Exception {
         // Given
         String clientId = applicationProperties.getCliendId();
         String clientSecret = applicationProperties.getClinetSecret();
-        String userEmail = applicationProperties.getUserUserName();
-        String userPassword = applicationProperties.getUserPassword();
         String grantType = applicationProperties.getGrantType();
-
-        Account userAccount = Account.builder()
-                .email(userEmail)
-                .password(userPassword)
-                .roles(Set.of(AccountRole.USER))
-                .build();
-        this.accountService.saveAccount(userAccount);
 
         // When
         String urlTemplate = "/oauth/token";
@@ -65,4 +56,15 @@ public class AuthInfoGenerator {
         Jackson2JsonParser jackson2JsonParser = new Jackson2JsonParser();
         return jackson2JsonParser.parseMap(responseBody).get("access_token").toString();
     }
+
+    public Account createUserAccount(String userEmail, String userPassword) {
+        Account userAccount = Account.builder()
+                .email(userEmail)
+                .password(userPassword)
+                .roles(Set.of(AccountRole.USER))
+                .build();
+        return this.accountService.saveAccount(userAccount);
+    }
+
+
 }

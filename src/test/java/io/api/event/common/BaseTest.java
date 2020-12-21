@@ -37,7 +37,7 @@ import javax.annotation.Resource;
 @ActiveProfiles(TestConstants.TEST) // Test Application 환경 설정
 @Disabled // jUnit4의 @Ignore 대체 annotation : Test를 가지고 있는 class로 간주되지 않도록 설정
 @TestMethodOrder(MethodOrderer.Alphanumeric.class) // Test method name을 이용한 실행순서 정렬
-public class BaseControllerTest {
+public class BaseTest {
 
     @Autowired
     protected MockMvc mockMvc;

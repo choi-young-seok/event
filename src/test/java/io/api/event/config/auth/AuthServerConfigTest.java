@@ -1,6 +1,6 @@
 package io.api.event.config.auth;
 
-import io.api.event.common.BaseControllerTest;
+import io.api.event.common.BaseTest;
 import io.api.event.domain.entity.account.Account;
 import io.api.event.domain.entity.account.AccountRole;
 import io.api.event.repository.account.AccountRepository;
@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class AuthServerConfigTest extends BaseControllerTest {
+class AuthServerConfigTest extends BaseTest {
 
     @Autowired
     AccountService accountService;
@@ -37,6 +37,7 @@ class AuthServerConfigTest extends BaseControllerTest {
     public void getAuthToken_Test() throws Exception {
         String userEmail = "test@naver.com";
         String userPassword = "test_password";
+        String grantType = applicationProperties.getGrantType();
 
         Account userAccount = Account.builder()
                 .email(userEmail)
@@ -55,7 +56,7 @@ class AuthServerConfigTest extends BaseControllerTest {
                 .with(httpBasic(clientId, clientSecret)) // clientId와 clientSecret를 이용한 basicOath Header 생성
                 .param("username", userEmail)
                 .param("password", userPassword)
-                .param("grant_type", "password")
+                .param("grant_type", grantType)
                 .characterEncoding(StandardCharsets.UTF_8.name())
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

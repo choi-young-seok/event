@@ -1,6 +1,6 @@
 package io.api.event.controller.index;
 
-import io.api.event.common.BaseControllerTest;
+import io.api.event.common.BaseTest;
 import io.api.event.util.common.TestDescription;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class IndexControllerTest extends BaseControllerTest {
+class IndexTest extends BaseTest {
 
     @Test
     @TestDescription("Spring HATEOAS, Spring REST DOCS를 이용한 API 목차 조회 요청")
