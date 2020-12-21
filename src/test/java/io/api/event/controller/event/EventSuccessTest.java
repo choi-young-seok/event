@@ -1,8 +1,10 @@
 package io.api.event.controller.event;
 
-import io.api.event.common.BaseControllerTest;
+import io.api.event.common.BaseTest;
 import io.api.event.controller.event.docs.EventDocumentGenerator;
 import io.api.event.domain.dto.event.EventDto;
+import io.api.event.domain.entity.account.Account;
+import io.api.event.domain.entity.account.AccountRole;
 import io.api.event.domain.entity.event.Event;
 import io.api.event.domain.entity.event.EventStatus;
 import io.api.event.repository.EventRepository;
@@ -22,18 +24,12 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.stream.IntStream;
 
-import static io.api.event.common.document.DocumentFormatGenerator.DATETIME_FORMAT;
-import static io.api.event.common.document.DocumentFormatGenerator.getDateTimeFormat;
 import static io.api.event.controller.event.docs.EventDocumentGenerator.*;
-import static io.api.event.util.common.constant.DocsInfo.*;
-import static org.springframework.restdocs.headers.HeaderDocumentation.*;
-import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -41,13 +37,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 //@AutoConfigureRestDocs()
 @Import(EventDocumentGenerator.class)
-public class EventControllerSuccessTest extends BaseControllerTest {
+public class EventSuccessTest extends BaseTest {
 
     @Autowired
     EventRepository eventRepository;
 
     @Autowired
     AccountRepository accountRepository;
+
+    @Autowired
+    AccountService accountService;
 
     @BeforeEach
     public void setUpRepository(){
@@ -60,6 +59,10 @@ public class EventControllerSuccessTest extends BaseControllerTest {
     @DisplayName("Create Event API : 이벤트 생성 요청")
     public void createEventApi() throws Exception {
         // Given
+        String userEmail = applicationProperties.getUserUserName();
+        String userPassword = applicationProperties.getUserPassword();
+        authInfoGenerator.createUserAccount(userEmail, userPassword);
+
         EventDto eventDto = EventDto.builder()
                 .name("루나소프트 생활 체육회")
                 .description("제 2회 루나 배 풋살 대회")
@@ -76,7 +79,7 @@ public class EventControllerSuccessTest extends BaseControllerTest {
         // When
         String urlTemplate = "/api/events";
         ResultActions resultActions = mockMvc.perform(post(urlTemplate)
-                .header(HttpHeaders.AUTHORIZATION, authInfoGenerator.getBearerToken())
+                .header(HttpHeaders.AUTHORIZATION, authInfoGenerator.getBearerToken(userEmail, userPassword))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .accept(MediaTypes.HAL_JSON)
                 .characterEncoding(StandardCharsets.UTF_8.name())
@@ -161,12 +164,16 @@ public class EventControllerSuccessTest extends BaseControllerTest {
     @DisplayName("Get Event List API : 이벤트 목록 조회 요청")
     public void getEventListApiByAuthenticatedAccount() throws Exception {
         // Given
+        String userEmail = applicationProperties.getUserUserName();
+        String userPassword = applicationProperties.getUserPassword();
+        authInfoGenerator.createUserAccount(userEmail, userPassword);
+
         IntStream.range(0, 30).forEach(eventDomainGenerator::generatedEvent);
 
         // When
         String urlTemplate = "/api/events";
         ResultActions resultActions = mockMvc.perform(get(urlTemplate)
-                .header(HttpHeaders.AUTHORIZATION, authInfoGenerator.getBearerToken())
+                .header(HttpHeaders.AUTHORIZATION, authInfoGenerator.getBearerToken(userEmail, userPassword))
                 .param("page", "1")
                 .param("size", "2")
                 .param("sort", "name,DESC")
@@ -247,16 +254,23 @@ public class EventControllerSuccessTest extends BaseControllerTest {
     @TestDescription("Spring HATEOAS, Spring REST DOCS를 이용한 API 응답, 전이 가능한 Link정보, Docs 생성 유무 확인")
     @DisplayName("Update Event API : 이벤트 수정 요청")
     public void updateEventApi() throws Exception {
-        // Given
-        Event event =  eventDomainGenerator.generatedEvent(100);
+        // Given #1 : Create User Account
+        String userEmail = applicationProperties.getUserUserName();
+        String userPassword = applicationProperties.getUserPassword();
+        Account account = authInfoGenerator.createUserAccount(userEmail, userPassword);
+
+        // Given #2 : Generate Event and set Manager Info
+        Event event =  eventDomainGenerator.generatedEventAndEventMangerByAccountInfo(100, account);
         EventDto eventDto = this.modelMapper.map(event, EventDto.class);
+
+        // Given #3 : Update Event Info
         String updatedEventName = "updated Event Name";
         eventDto.setName(updatedEventName);
 
         // When
         String urlTemplate = "/api/events/{id}";
         ResultActions resultActions = mockMvc.perform(RestDocumentationRequestBuilders.put(urlTemplate, event.getId())
-                .header(HttpHeaders.AUTHORIZATION, authInfoGenerator.getBearerToken())
+                .header(HttpHeaders.AUTHORIZATION, authInfoGenerator.getBearerToken(userEmail, userPassword))
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(StandardCharsets.UTF_8.name())

@@ -99,7 +99,7 @@ public class EventController {
         Event event = optionalEvent.get();
         EventEntityModel eventEntityModel = new EventEntityModel(event);
         eventEntityModel.add(new Link(DocsInfo.GET_EVENT_DOCS_PATH).withRel(DocsInfo.PROFILE));
-        if(event.getManager().equals(currentUser)){
+        if(event.getManager() != null &&!event.getManager().equals(currentUser)){
             eventEntityModel.add(linkTo(EventController.class).slash(event.getId()).withRel(UPDATE_EVENT));
         }
         return ResponseEntity.ok(eventEntityModel);
@@ -156,7 +156,7 @@ public class EventController {
         }
 
         Event existingEvent = optionalEvent.get();
-        if(existingEvent.getManager().equals(currentUser)){
+        if(!existingEvent.getManager().equals(currentUser)){
             return new ResponseEntity(HttpStatus.UNAUTHORIZED);
         }
         this.modelMapper.map(eventDto, existingEvent);

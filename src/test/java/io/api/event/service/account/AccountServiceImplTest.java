@@ -72,8 +72,7 @@ class AccountServiceImplTest {
     @Test
     @TestDescription("요청 파라미터에 해당하는 Account 정보가 없는 경우 발생 하는 예외 처리")
     @DisplayName("Account Service : 유효하지 못한 로그인 요청의 예외 발생")
-    public void findByUserName_Exception_Test(){
-        // Given
+    public void findByUserName_Exception_Test(){        // Given
         String email = "rcn115@naver.com";
 
         try {
@@ -83,4 +82,5 @@ class AccountServiceImplTest {
             assertThat(e.getMessage()).containsSequence(email);
         }
     }
+
 }

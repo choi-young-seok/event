@@ -1,7 +1,8 @@
 package io.api.event.controller.event;
 
-import io.api.event.common.BaseControllerTest;
+import io.api.event.common.BaseTest;
 import io.api.event.domain.dto.event.EventDto;
+import io.api.event.domain.entity.account.Account;
 import io.api.event.domain.entity.event.Event;
 import io.api.event.repository.EventRepository;
 import io.api.event.repository.account.AccountRepository;
@@ -25,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 //@AutoConfigureRestDocs()
-public class EventControllerFailTest extends BaseControllerTest {
+public class EventFailTest extends BaseTest {
 
     @Autowired
     EventRepository eventRepository;
@@ -47,12 +48,16 @@ public class EventControllerFailTest extends BaseControllerTest {
     @DisplayName("Create Event API : 입력값이 없는 요청")
     public void createEventAPI_EmptyRequest_Test() throws Exception {
         // Given
+        String userEmail = applicationProperties.getUserUserName();
+        String userPassword = applicationProperties.getUserPassword();
+        authInfoGenerator.createUserAccount(userEmail, userPassword);
+
         EventDto eventDto = new EventDto();
 
         // When
         String urlTemplate = "/api/events";
         ResultActions resultActions = mockMvc.perform(post(urlTemplate)
-                .header(HttpHeaders.AUTHORIZATION, this.authInfoGenerator.getBearerToken())
+                .header(HttpHeaders.AUTHORIZATION, this.authInfoGenerator.getBearerToken(userEmail, userPassword))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .characterEncoding(StandardCharsets.UTF_8.name())
@@ -81,6 +86,10 @@ public class EventControllerFailTest extends BaseControllerTest {
     @DisplayName("Create Event API : 입력값이 유효하지 못한 요청")
     public void createEventAPI_WrongParameterRequest_Test() throws Exception {
         // Given
+        String userEmail = applicationProperties.getUserUserName();
+        String userPassword = applicationProperties.getUserPassword();
+        authInfoGenerator.createUserAccount(userEmail, userPassword);
+
         Event event = Event.builder()
                 .name("루나소프트 생활 체육회")
                 .description("제 2회 루나 배 풋살 대회")
@@ -97,7 +106,7 @@ public class EventControllerFailTest extends BaseControllerTest {
         // When
         String urlTemplate = "/api/events";
         ResultActions resultActions = mockMvc.perform(post(urlTemplate)
-                .header(HttpHeaders.AUTHORIZATION, authInfoGenerator.getBearerToken())
+                .header(HttpHeaders.AUTHORIZATION, authInfoGenerator.getBearerToken(userEmail, userPassword))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .accept(MediaTypes.HAL_JSON)
                 .characterEncoding(StandardCharsets.UTF_8.name())
@@ -148,14 +157,18 @@ public class EventControllerFailTest extends BaseControllerTest {
     @TestDescription("JSR303 Annotation을 이용한 입력값이 없는 요청의 400 Bad Request 처리")
     @DisplayName("Update Event API : 입력값이 없는 요청")
     public void updateEventAPI_EmptyRequest_Test() throws Exception {
+        String userEmail = applicationProperties.getUserUserName();
+        String userPassword = applicationProperties.getUserPassword();
+        Account account = authInfoGenerator.createUserAccount(userEmail, userPassword);
+
         // Given
-        Event event = eventDomainGenerator.generatedEvent(100);
+        Event event = eventDomainGenerator.generatedEventAndEventMangerByAccountInfo(100, account);
         EventDto eventDto = new EventDto();
 
         // When
         String urlTemplate = "/api/events/{id}";
         ResultActions resultActions = mockMvc.perform(put(urlTemplate, event.getId())
-                .header(HttpHeaders.AUTHORIZATION, authInfoGenerator.getBearerToken())
+                .header(HttpHeaders.AUTHORIZATION, authInfoGenerator.getBearerToken(userEmail, userPassword))
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(StandardCharsets.UTF_8.name())
@@ -179,7 +192,11 @@ public class EventControllerFailTest extends BaseControllerTest {
     @DisplayName("Update Event API : 입력값이 유효하지 못한 요청")
     public void updateEventAPI_WrongParameterRequest_Test() throws Exception {
         // Given
-        Event event =  eventDomainGenerator.generatedEvent(100);
+        String userEmail = applicationProperties.getUserUserName();
+        String userPassword = applicationProperties.getUserPassword();
+        Account account = authInfoGenerator.createUserAccount(userEmail, userPassword);
+
+        Event event =  eventDomainGenerator.generatedEventAndEventMangerByAccountInfo(100, account);
         EventDto eventDto = this.modelMapper.map(event, EventDto.class);
         eventDto.setBasePrice(20000);
         eventDto.setMaxPrice(10000);
@@ -189,7 +206,7 @@ public class EventControllerFailTest extends BaseControllerTest {
         // When
         String urlTemplate = "/api/events/{id}";
         ResultActions resultActions = mockMvc.perform(put(urlTemplate, event.getId())
-                .header(HttpHeaders.AUTHORIZATION, authInfoGenerator.getBearerToken())
+                .header(HttpHeaders.AUTHORIZATION, authInfoGenerator.getBearerToken(userEmail, userPassword))
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(StandardCharsets.UTF_8.name())
@@ -211,7 +228,11 @@ public class EventControllerFailTest extends BaseControllerTest {
     @DisplayName("Update Event API : 존재 하지 않는 이벤트 수정 요청")
     public void updateEventAPI_NotFound_Test() throws Exception {
         // Given
-        Event event =  eventDomainGenerator.generatedEvent(100);
+        String userEmail = applicationProperties.getUserUserName();
+        String userPassword = applicationProperties.getUserPassword();
+        Account account = authInfoGenerator.createUserAccount(userEmail, userPassword);
+
+        Event event =  eventDomainGenerator.generatedEventAndEventMangerByAccountInfo(100, account);
         EventDto eventDto = this.modelMapper.map(event, EventDto.class);
         String updatedEventName = "updated Event Name";
         eventDto.setName(updatedEventName);
@@ -219,7 +240,7 @@ public class EventControllerFailTest extends BaseControllerTest {
         // When
         String urlTemplate = "/api/events/123124";
         ResultActions resultActions = mockMvc.perform(put(urlTemplate)
-                .header(HttpHeaders.AUTHORIZATION, authInfoGenerator.getBearerToken())
+                .header(HttpHeaders.AUTHORIZATION, authInfoGenerator.getBearerToken(userEmail, userPassword))
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding(StandardCharsets.UTF_8.name())
